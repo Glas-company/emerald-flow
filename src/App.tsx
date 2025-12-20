@@ -5,8 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 // Layouts
-import { AuthLayout } from "@/components/layout/AuthLayout";
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { MobileLayout } from "@/components/layout/MobileLayout";
 
 // Public Pages
 import Landing from "@/pages/Landing";
@@ -44,23 +43,19 @@ const App = () => (
           <Route path="/planos" element={<Planos />} />
           <Route path="/ajuda" element={<Ajuda />} />
           
-          {/* Auth Routes */}
-          <Route path="/auth" element={<AuthLayout />}>
-            <Route path="login" element={<Login />} />
-            <Route path="cadastro" element={<Cadastro />} />
-            <Route path="recuperar-senha" element={<RecuperarSenha />} />
-          </Route>
+          {/* Auth Routes - Mobile Full Screen */}
+          <Route path="/auth/login" element={<Login />} />
+          <Route path="/auth/cadastro" element={<Cadastro />} />
+          <Route path="/auth/recuperar-senha" element={<RecuperarSenha />} />
 
           {/* Onboarding */}
           <Route path="/onboarding" element={<Onboarding />} />
 
-          {/* App Routes (Protected) */}
-          <Route path="/app" element={<DashboardLayout />}>
+          {/* App Routes with Mobile Layout */}
+          <Route path="/app" element={<MobileLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="chat" element={<ChatIA />} />
             <Route path="configuracoes" element={<Configuracoes />} />
-            
-            {/* Admin Routes */}
             <Route path="admin/metricas" element={<AdminMetricas />} />
           </Route>
 

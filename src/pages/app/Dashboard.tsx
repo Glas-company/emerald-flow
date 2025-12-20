@@ -1,213 +1,187 @@
-import { 
-  BarChart3, 
-  Users, 
-  TrendingUp, 
-  MessageSquare, 
-  ArrowUpRight,
-  ArrowDownRight,
-  Clock,
-  CheckCircle
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { Settings } from "lucide-react";
 import { Link } from "react-router-dom";
+import { SearchBar } from "@/components/ui/SearchBar";
+import { ChipGroup } from "@/components/ui/ChipGroup";
+import { HeroCard } from "@/components/ui/HeroCard";
+import { MobileCard } from "@/components/ui/MobileCard";
 
-const stats = [
+const categories = ["Todos", "Automação", "Equipe", "Relatórios", "Vendas"];
+
+const featuredItems = [
   {
-    label: "Usuários ativos",
-    value: "1,247",
-    change: "+12%",
-    trend: "up",
-    icon: Users
+    id: 1,
+    title: "Dashboard Pro",
+    subtitle: "Métricas em tempo real",
+    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80",
+    rating: 4.9,
+    reviews: 324,
+    tag: "Popular",
   },
   {
-    label: "Conversões",
-    value: "324",
-    change: "+8.5%",
-    trend: "up",
-    icon: TrendingUp
+    id: 2,
+    title: "Automação de Vendas",
+    subtitle: "Aumente sua conversão",
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=80",
+    rating: 4.8,
+    reviews: 256,
+    tag: "Novo",
   },
-  {
-    label: "Mensagens",
-    value: "2,847",
-    change: "-3%",
-    trend: "down",
-    icon: MessageSquare
-  },
-  {
-    label: "Tempo médio",
-    value: "4m 32s",
-    change: "+18%",
-    trend: "up",
-    icon: Clock
-  }
 ];
 
-const recentActivity = [
-  { action: "Novo usuário cadastrado", user: "Carlos Silva", time: "Há 5 min" },
-  { action: "Documento criado", user: "Ana Costa", time: "Há 12 min" },
-  { action: "Plano atualizado para Pro", user: "Roberto Lima", time: "Há 1 hora" },
-  { action: "Integração ativada", user: "Maria Santos", time: "Há 2 horas" },
+const recentItems = [
+  {
+    id: 1,
+    title: "Relatório Mensal",
+    subtitle: "Atualizado há 2 horas",
+    image: "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=800&auto=format&fit=crop&q=80",
+    rating: 4.6,
+    reviews: 56,
+  },
+  {
+    id: 2,
+    title: "Pipeline de Vendas",
+    subtitle: "12 oportunidades ativas",
+    image: "https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&auto=format&fit=crop&q=80",
+    rating: 4.8,
+    reviews: 128,
+  },
 ];
 
-const tasks = [
-  { title: "Revisar relatório mensal", status: "pending", priority: "high" },
-  { title: "Atualizar documentação", status: "in_progress", priority: "medium" },
-  { title: "Reunião com equipe", status: "completed", priority: "low" },
+const quickActions = [
+  {
+    id: 1,
+    title: "Chat com IA",
+    description: "Tire dúvidas instantâneas",
+    image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&auto=format&fit=crop&q=80",
+    tag: "IA",
+  },
+  {
+    id: 2,
+    title: "Criar Relatório",
+    description: "Gere insights automaticamente",
+    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&auto=format&fit=crop&q=80",
+  },
 ];
 
 export default function Dashboard() {
+  const [category, setCategory] = useState("Todos");
+  const [searchQuery, setSearchQuery] = useState("");
+
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground">Bem-vindo de volta! Aqui está o resumo do seu negócio.</p>
-        </div>
-        <div className="flex gap-3">
-          <Button variant="outline">Exportar</Button>
-          <Button>
-            <BarChart3 size={18} />
-            Ver métricas
-          </Button>
-        </div>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat) => (
-          <div key={stat.label} className="card-elevated p-6">
-            <div className="flex items-start justify-between">
-              <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center">
-                <stat.icon size={20} className="text-primary" />
-              </div>
-              <div className={`flex items-center gap-1 text-sm font-medium ${
-                stat.trend === "up" ? "text-primary" : "text-destructive"
-              }`}>
-                {stat.trend === "up" ? (
-                  <ArrowUpRight size={16} />
-                ) : (
-                  <ArrowDownRight size={16} />
-                )}
-                {stat.change}
-              </div>
+      <header className="px-5 pt-12 pb-4 safe-area-top">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-full bg-secondary overflow-hidden">
+              <img
+                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&auto=format&fit=crop&q=80"
+                alt="Avatar"
+                className="w-full h-full object-cover"
+              />
             </div>
-            <div className="mt-4">
-              <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-              <p className="text-sm text-muted-foreground">{stat.label}</p>
+            <div>
+              <h1 className="text-xl font-bold text-foreground">Olá, Carlos</h1>
+              <p className="text-sm text-muted-foreground">Bem-vindo ao ELO</p>
             </div>
           </div>
-        ))}
-      </div>
-
-      {/* Content Grid */}
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Recent Activity */}
-        <div className="lg:col-span-2 card-elevated p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-foreground">Atividade recente</h2>
-            <Button variant="ghost" size="sm">Ver tudo</Button>
-          </div>
-          <div className="space-y-4">
-            {recentActivity.map((item, index) => (
-              <div 
-                key={index}
-                className="flex items-center justify-between py-3 border-b border-border last:border-0"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-sm font-medium text-secondary-foreground">
-                    {item.user.split(" ").map(n => n[0]).join("")}
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{item.action}</p>
-                    <p className="text-xs text-muted-foreground">{item.user}</p>
-                  </div>
-                </div>
-                <span className="text-xs text-muted-foreground">{item.time}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Tasks */}
-        <div className="card-elevated p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-foreground">Tarefas</h2>
-            <Button variant="ghost" size="sm">+ Nova</Button>
-          </div>
-          <div className="space-y-3">
-            {tasks.map((task, index) => (
-              <div 
-                key={index}
-                className="flex items-start gap-3 p-3 rounded-lg bg-secondary/50"
-              >
-                <div className={`mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                  task.status === "completed" 
-                    ? "bg-primary border-primary" 
-                    : "border-border"
-                }`}>
-                  {task.status === "completed" && (
-                    <CheckCircle size={12} className="text-primary-foreground" />
-                  )}
-                </div>
-                <div className="flex-1">
-                  <p className={`text-sm font-medium ${
-                    task.status === "completed" ? "text-muted-foreground line-through" : "text-foreground"
-                  }`}>
-                    {task.title}
-                  </p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${
-                      task.priority === "high" 
-                        ? "bg-destructive/10 text-destructive"
-                        : task.priority === "medium"
-                        ? "bg-warning/10 text-warning"
-                        : "bg-muted text-muted-foreground"
-                    }`}>
-                      {task.priority === "high" ? "Alta" : task.priority === "medium" ? "Média" : "Baixa"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="card-elevated p-6">
-        <h2 className="text-lg font-semibold text-foreground mb-4">Ações rápidas</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Link 
-            to="/app/chat"
-            className="p-4 rounded-xl bg-accent hover:bg-accent/80 transition-colors text-center"
-          >
-            <MessageSquare size={24} className="text-primary mx-auto mb-2" />
-            <p className="text-sm font-medium text-foreground">Chat IA</p>
-          </Link>
-          <Link 
-            to="/app/documentos"
-            className="p-4 rounded-xl bg-accent hover:bg-accent/80 transition-colors text-center"
-          >
-            <BarChart3 size={24} className="text-primary mx-auto mb-2" />
-            <p className="text-sm font-medium text-foreground">Documentos</p>
-          </Link>
-          <Link 
-            to="/app/equipe"
-            className="p-4 rounded-xl bg-accent hover:bg-accent/80 transition-colors text-center"
-          >
-            <Users size={24} className="text-primary mx-auto mb-2" />
-            <p className="text-sm font-medium text-foreground">Equipe</p>
-          </Link>
           <Link 
             to="/app/configuracoes"
-            className="p-4 rounded-xl bg-accent hover:bg-accent/80 transition-colors text-center"
+            className="w-11 h-11 rounded-2xl bg-primary flex items-center justify-center shadow-md"
           >
-            <TrendingUp size={24} className="text-primary mx-auto mb-2" />
-            <p className="text-sm font-medium text-foreground">Configurações</p>
+            <Settings size={20} className="text-primary-foreground" />
           </Link>
         </div>
-      </div>
+
+        {/* Search */}
+        <SearchBar
+          placeholder="Buscar recursos..."
+          value={searchQuery}
+          onChange={setSearchQuery}
+          showFilter
+        />
+      </header>
+
+      {/* Content */}
+      <main className="px-5 pb-8 space-y-8">
+        {/* Categories */}
+        <section className="animate-fade-up">
+          <h2 className="text-lg font-semibold text-foreground mb-4">
+            Selecione uma categoria
+          </h2>
+          <ChipGroup
+            options={categories}
+            value={category}
+            onChange={setCategory}
+          />
+        </section>
+
+        {/* Featured Hero Card */}
+        <section className="animate-fade-up" style={{ animationDelay: "50ms" }}>
+          <HeroCard
+            image={featuredItems[0].image}
+            title={featuredItems[0].title}
+            subtitle={featuredItems[0].subtitle}
+            rating={featuredItems[0].rating}
+            reviews={featuredItems[0].reviews}
+            tag={featuredItems[0].tag}
+          />
+        </section>
+
+        {/* Quick Actions */}
+        <section className="animate-fade-up" style={{ animationDelay: "100ms" }}>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-foreground">Ações rápidas</h2>
+            <button className="text-sm font-medium text-muted-foreground">Ver tudo</button>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {quickActions.map((item) => (
+              <MobileCard
+                key={item.id}
+                image={item.image}
+                title={item.title}
+                subtitle={item.description}
+                tag={item.tag}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* Recent */}
+        <section className="animate-fade-up" style={{ animationDelay: "150ms" }}>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-foreground">Recentes</h2>
+            <button className="text-sm font-medium text-muted-foreground">Ver tudo</button>
+          </div>
+          <div className="space-y-3">
+            {recentItems.map((item) => (
+              <MobileCard
+                key={item.id}
+                variant="horizontal"
+                image={item.image}
+                title={item.title}
+                subtitle={item.subtitle}
+                rating={item.rating}
+                reviews={item.reviews}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* Secondary Hero */}
+        <section className="animate-fade-up" style={{ animationDelay: "200ms" }}>
+          <HeroCard
+            image={featuredItems[1].image}
+            title={featuredItems[1].title}
+            subtitle={featuredItems[1].subtitle}
+            rating={featuredItems[1].rating}
+            reviews={featuredItems[1].reviews}
+            tag={featuredItems[1].tag}
+            size="md"
+          />
+        </section>
+      </main>
     </div>
   );
 }

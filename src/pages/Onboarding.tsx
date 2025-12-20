@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { ChevronLeft, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface Question {
@@ -16,39 +16,39 @@ const questions: Question[] = [
     id: "business_type",
     question: "Qual é o tipo do seu negócio?",
     options: [
-      { value: "saas", label: "SaaS / Software", description: "Empresa de tecnologia ou software" },
-      { value: "ecommerce", label: "E-commerce", description: "Loja online ou marketplace" },
-      { value: "services", label: "Serviços", description: "Consultoria, agência ou prestação de serviços" },
-      { value: "industry", label: "Indústria", description: "Fabricação ou manufatura" },
-      { value: "other", label: "Outro", description: "Outro tipo de negócio" },
+      { value: "saas", label: "SaaS / Software", description: "Empresa de tecnologia" },
+      { value: "ecommerce", label: "E-commerce", description: "Loja online" },
+      { value: "services", label: "Serviços", description: "Consultoria ou agência" },
+      { value: "industry", label: "Indústria", description: "Fabricação" },
+      { value: "other", label: "Outro", description: "Outro tipo" },
     ]
   },
   {
     id: "team_size",
-    question: "Quantas pessoas trabalham na sua empresa?",
+    question: "Quantas pessoas na equipe?",
     options: [
       { value: "1", label: "Só eu" },
       { value: "2-5", label: "2 a 5 pessoas" },
       { value: "6-20", label: "6 a 20 pessoas" },
       { value: "21-50", label: "21 a 50 pessoas" },
-      { value: "50+", label: "Mais de 50 pessoas" },
+      { value: "50+", label: "Mais de 50" },
     ]
   },
   {
     id: "goals",
-    question: "Quais são seus principais objetivos?",
+    question: "Seus principais objetivos?",
     multiple: true,
     options: [
       { value: "automation", label: "Automatizar processos" },
       { value: "analytics", label: "Melhorar análise de dados" },
       { value: "team", label: "Organizar a equipe" },
-      { value: "customers", label: "Atender melhor os clientes" },
+      { value: "customers", label: "Atender melhor clientes" },
       { value: "growth", label: "Crescer o negócio" },
     ]
   },
   {
     id: "features",
-    question: "Quais recursos você mais precisa?",
+    question: "Recursos que mais precisa?",
     multiple: true,
     options: [
       { value: "chat_ai", label: "Chat com IA" },
@@ -100,7 +100,6 @@ export default function Onboarding() {
     if (currentStep < questions.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      // TODO: Save answers to database
       console.log("Onboarding complete:", answers);
       navigate("/app");
     }
@@ -115,89 +114,72 @@ export default function Onboarding() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <header className="border-b border-border">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">E</span>
-            </div>
-            <span className="font-bold text-xl text-foreground">ELO</span>
-          </div>
-          <span className="text-sm text-muted-foreground">
-            Passo {currentStep + 1} de {questions.length}
+      <header className="px-5 pt-12 pb-4 safe-area-top">
+        <div className="flex items-center justify-between mb-6">
+          <button 
+            onClick={handleBack}
+            disabled={currentStep === 0}
+            className={`back-button ${currentStep === 0 ? 'opacity-0 pointer-events-none' : ''}`}
+          >
+            <ChevronLeft size={24} className="text-foreground" />
+          </button>
+          <span className="text-sm text-muted-foreground font-medium">
+            {currentStep + 1} de {questions.length}
           </span>
+          <div className="w-10" />
         </div>
+        <Progress value={progress} className="h-1 rounded-full" />
       </header>
 
-      {/* Progress */}
-      <div className="border-b border-border">
-        <div className="container mx-auto px-4 py-4">
-          <Progress value={progress} className="h-2" />
-        </div>
-      </div>
-
       {/* Content */}
-      <main className="flex-1 container mx-auto px-4 py-12">
-        <div className="max-w-2xl mx-auto animate-fade-in" key={currentStep}>
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            {currentQuestion.question}
-          </h1>
-          {currentQuestion.multiple && (
-            <p className="text-muted-foreground mb-8">
-              Selecione todas as opções que se aplicam
-            </p>
-          )}
+      <main className="flex-1 px-5 py-8 animate-fade-in" key={currentStep}>
+        <h1 className="text-2xl font-bold text-foreground mb-2">
+          {currentQuestion.question}
+        </h1>
+        {currentQuestion.multiple && (
+          <p className="text-muted-foreground mb-6">
+            Selecione todas que se aplicam
+          </p>
+        )}
 
-          <div className="grid gap-4 mt-8">
-            {currentQuestion.options.map((option) => (
-              <button
-                key={option.value}
-                onClick={() => handleSelect(option.value)}
-                className={`p-5 rounded-xl border-2 text-left transition-all ${
-                  isSelected(option.value)
-                    ? "border-primary bg-accent"
-                    : "border-border hover:border-primary/50"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-foreground">{option.label}</p>
-                    {option.description && (
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {option.description}
-                      </p>
-                    )}
-                  </div>
-                  {isSelected(option.value) && (
-                    <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                      <Check size={14} className="text-primary-foreground" />
-                    </div>
-                  )}
+        <div className="space-y-3 mt-8">
+          {currentQuestion.options.map((option) => (
+            <button
+              key={option.value}
+              onClick={() => handleSelect(option.value)}
+              className={`w-full p-5 rounded-2xl text-left transition-all flex items-center justify-between ${
+                isSelected(option.value)
+                  ? "bg-primary/10 border-2 border-primary"
+                  : "bg-secondary border-2 border-transparent"
+              }`}
+            >
+              <div>
+                <p className="font-semibold text-foreground">{option.label}</p>
+                {option.description && (
+                  <p className="text-sm text-muted-foreground mt-0.5">
+                    {option.description}
+                  </p>
+                )}
+              </div>
+              {isSelected(option.value) && (
+                <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                  <Check size={14} className="text-primary-foreground" />
                 </div>
-              </button>
-            ))}
-          </div>
+              )}
+            </button>
+          ))}
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border">
-        <div className="container mx-auto px-4 py-4">
-          <div className="max-w-2xl mx-auto flex justify-between">
-            <Button
-              variant="ghost"
-              onClick={handleBack}
-              disabled={currentStep === 0}
-            >
-              <ChevronLeft size={18} />
-              Voltar
-            </Button>
-            <Button onClick={handleNext} disabled={!canContinue()}>
-              {currentStep === questions.length - 1 ? "Concluir" : "Continuar"}
-              <ChevronRight size={18} />
-            </Button>
-          </div>
-        </div>
+      <footer className="px-5 py-6 safe-area-bottom">
+        <Button 
+          onClick={handleNext} 
+          disabled={!canContinue()}
+          className="w-full h-14 rounded-2xl text-base font-semibold"
+        >
+          {currentStep === questions.length - 1 ? "Concluir" : "Continuar"}
+        </Button>
       </footer>
     </div>
   );
