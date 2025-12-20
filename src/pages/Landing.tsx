@@ -1,167 +1,154 @@
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ArrowRight, Zap, BarChart3, Users, MessageSquare, Check } from "lucide-react";
+import { ArrowRight, Zap, BarChart3, Users, MessageSquare, Check, Star, Heart, Home, Bookmark, User } from "lucide-react";
 
 const features = [
-  {
-    icon: Zap,
-    title: "Automação Inteligente",
-    description: "Automatize tarefas e foque no que importa",
-  },
-  {
-    icon: BarChart3,
-    title: "Métricas em Tempo Real",
-    description: "Dashboards intuitivos e personalizados",
-  },
-  {
-    icon: Users,
-    title: "Gestão de Equipe",
-    description: "Organize sua equipe com eficiência",
-  },
-  {
-    icon: MessageSquare,
-    title: "Chat com IA",
-    description: "Assistente 24/7 para sua equipe",
-  },
-];
-
-const benefits = [
-  "Sem cartão de crédito",
-  "14 dias grátis",
-  "Cancele quando quiser",
+  { icon: Zap, title: "Automação" },
+  { icon: BarChart3, title: "Métricas" },
+  { icon: Users, title: "Equipe" },
+  { icon: MessageSquare, title: "Chat IA" },
 ];
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Hero Section */}
-      <section className="flex-1 px-5 pt-16 pb-8 safe-area-top">
-        <div className="animate-fade-up">
-          {/* Logo */}
-          <div className="flex items-center gap-2 mb-12">
-            <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-xl">E</span>
+    <div className="min-h-screen bg-[#f5f5f5] flex items-center justify-center p-4">
+      {/* Mobile Phone Container */}
+      <div className="w-full max-w-[390px] min-h-[844px] bg-white rounded-[40px] shadow-2xl overflow-hidden relative">
+        {/* Status Bar */}
+        <div className="h-12 bg-white flex items-center justify-center">
+          <div className="w-[120px] h-[34px] bg-black rounded-full" />
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 px-5 pb-28 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+          {/* Header */}
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-2">
+              <div className="w-10 h-10 rounded-2xl bg-[#1a1a1a] flex items-center justify-center">
+                <span className="text-white font-bold text-lg">E</span>
+              </div>
+              <span className="font-bold text-xl text-[#1a1a1a]">ELO</span>
             </div>
-            <span className="font-bold text-2xl text-foreground">ELO</span>
+            <Link 
+              to="/auth/login"
+              className="px-5 py-2.5 bg-[#1a1a1a] text-white text-[14px] font-medium rounded-full"
+            >
+              Entrar
+            </Link>
           </div>
 
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/20 text-accent text-sm font-medium mb-6">
-            <Zap size={16} />
-            <span>Novo: Integração com IA</span>
+          {/* Hero */}
+          <div className="mb-6">
+            <h1 className="text-[28px] font-bold text-[#1a1a1a] leading-tight mb-3">
+              Gerencie seu negócio de forma simples
+            </h1>
+            <p className="text-[14px] text-[#8a8a8a] leading-relaxed">
+              Automatize processos e cresça mais rápido.
+            </p>
           </div>
 
-          {/* Title */}
-          <h1 className="text-4xl font-bold text-foreground leading-tight mb-4">
-            Conecte todas as áreas do seu negócio
-          </h1>
+          {/* Features Grid */}
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            {features.map((feature) => (
+              <div 
+                key={feature.title}
+                className="bg-[#f5f5f5] rounded-2xl p-4 flex flex-col items-start"
+              >
+                <div className="w-10 h-10 rounded-xl bg-[#1a1a1a] flex items-center justify-center mb-2">
+                  <feature.icon size={18} className="text-white" />
+                </div>
+                <span className="text-[13px] font-semibold text-[#1a1a1a]">{feature.title}</span>
+              </div>
+            ))}
+          </div>
 
-          <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-            ELO é a plataforma que simplifica a gestão da sua empresa. Tudo integrado para você crescer mais rápido.
-          </p>
+          {/* Hero Card Preview */}
+          <div className="relative rounded-[24px] overflow-hidden shadow-xl mb-5">
+            <div className="relative h-[200px]">
+              <img
+                src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80"
+                alt="Dashboard"
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+              
+              <button className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center">
+                <Heart size={16} className="text-[#1a1a1a]" />
+              </button>
+
+              <div className="absolute bottom-0 left-0 right-0 p-4">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/20 backdrop-blur-sm text-white text-[11px] font-medium rounded-full mb-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  Dashboard
+                </span>
+                <h3 className="text-[20px] font-bold text-white mb-1">
+                  Visão Geral
+                </h3>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 px-2 py-0.5 bg-white/20 backdrop-blur-sm rounded-full">
+                    <Star size={10} className="text-yellow-400 fill-yellow-400" />
+                    <span className="text-[10px] font-semibold text-white">5.0</span>
+                  </div>
+                  <span className="text-[10px] text-white/80">5.000+ empresas</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-[#1a1a1a] px-4 py-3 flex items-center justify-between">
+              <span className="text-white text-[13px] font-medium">Começar grátis</span>
+              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
+                <ArrowRight size={14} className="text-[#1a1a1a]" />
+              </div>
+            </div>
+          </div>
 
           {/* Benefits */}
-          <div className="flex flex-wrap gap-4 mb-8">
-            {benefits.map((benefit) => (
-              <div key={benefit} className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center">
-                  <Check size={12} className="text-accent" />
+          <div className="flex flex-wrap gap-3 mb-6">
+            {["Sem cartão", "14 dias grátis", "Cancele quando quiser"].map((text) => (
+              <div key={text} className="flex items-center gap-1.5">
+                <div className="w-4 h-4 rounded-full bg-emerald-100 flex items-center justify-center">
+                  <Check size={10} className="text-emerald-600" />
                 </div>
-                <span className="text-sm text-muted-foreground">{benefit}</span>
+                <span className="text-[12px] text-[#8a8a8a]">{text}</span>
               </div>
             ))}
           </div>
 
           {/* CTA Buttons */}
           <div className="space-y-3">
-            <Button size="lg" className="w-full h-14 rounded-2xl text-base font-semibold" asChild>
-              <Link to="/auth/cadastro">
-                Começar grátis
-                <ArrowRight size={20} className="ml-2" />
-              </Link>
-            </Button>
-            <Button 
-              size="lg" 
-              variant="secondary" 
-              className="w-full h-14 rounded-2xl text-base font-semibold" 
-              asChild
+            <Link 
+              to="/auth/cadastro"
+              className="flex items-center justify-center w-full h-12 bg-[#1a1a1a] text-white text-[14px] font-semibold rounded-full"
             >
-              <Link to="/auth/login">
-                Já tenho uma conta
-              </Link>
-            </Button>
+              Criar conta grátis
+              <ArrowRight size={16} className="ml-2" />
+            </Link>
+            <Link 
+              to="/auth/login"
+              className="flex items-center justify-center w-full h-12 bg-[#f5f5f5] text-[#1a1a1a] text-[14px] font-semibold rounded-full"
+            >
+              Já tenho conta
+            </Link>
           </div>
         </div>
-      </section>
 
-      {/* Features Section */}
-      <section className="px-5 py-12 bg-secondary/50">
-        <h2 className="text-2xl font-bold text-foreground mb-8">
-          Tudo que você precisa
-        </h2>
-        
-        <div className="space-y-4">
-          {features.map((feature, index) => (
-            <div
-              key={feature.title}
-              className="card-mobile p-5 flex items-start gap-4 animate-fade-up"
-              style={{ animationDelay: `${index * 50}ms` }}
-            >
-              <div className="w-12 h-12 rounded-2xl bg-accent/20 flex items-center justify-center flex-shrink-0">
-                <feature.icon size={24} className="text-accent" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground mb-1">{feature.title}</h3>
-                <p className="text-sm text-muted-foreground">{feature.description}</p>
-              </div>
-            </div>
-          ))}
+        {/* Bottom Navigation */}
+        <div className="absolute bottom-0 left-0 right-0 bg-white px-6 pb-8 pt-3">
+          <div className="bg-[#1a1a1a] rounded-full px-3 py-1.5 flex items-center justify-around">
+            <button className="p-2.5">
+              <Home size={20} className="text-white" />
+            </button>
+            <button className="p-2.5">
+              <Bookmark size={20} className="text-white/50" />
+            </button>
+            <button className="p-2.5">
+              <Heart size={20} className="text-white/50" />
+            </button>
+            <button className="p-2.5">
+              <User size={20} className="text-white/50" />
+            </button>
+          </div>
         </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="px-5 py-12">
-        <div className="grid grid-cols-2 gap-6">
-          {[
-            { value: "5.000+", label: "Empresas ativas" },
-            { value: "98%", label: "Satisfação" },
-            { value: "40%", label: "Mais produtivo" },
-            { value: "24/7", label: "Suporte" },
-          ].map((stat, index) => (
-            <div 
-              key={stat.label}
-              className="text-center animate-fade-up"
-              style={{ animationDelay: `${index * 50}ms` }}
-            >
-              <p className="text-3xl font-bold text-foreground">{stat.value}</p>
-              <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Bottom CTA */}
-      <section className="px-5 py-8 safe-area-bottom">
-        <div className="bg-primary rounded-3xl p-8 text-center">
-          <h2 className="text-2xl font-bold text-primary-foreground mb-3">
-            Pronto para começar?
-          </h2>
-          <p className="text-primary-foreground/80 mb-6">
-            Junte-se a milhares de empresas
-          </p>
-          <Button 
-            size="lg" 
-            variant="secondary"
-            className="w-full h-14 rounded-2xl text-base font-semibold bg-background text-foreground hover:bg-background/90"
-            asChild
-          >
-            <Link to="/auth/cadastro">
-              Criar conta grátis
-              <ArrowRight size={20} className="ml-2" />
-            </Link>
-          </Button>
-        </div>
-      </section>
+      </div>
     </div>
   );
 }
