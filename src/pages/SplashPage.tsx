@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Logo } from "@/components/Logo";
+import logoCalc from "@/assets/logo-calc.png";
 
 const FIRST_RUN_KEY = "calc:firstRunDone";
 
@@ -9,34 +9,27 @@ export default function SplashPage() {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    // Check if it's first run
     const firstRunDone = localStorage.getItem(FIRST_RUN_KEY) === "true";
     
-    // Safety timeout - never wait more than 3 seconds
     const safetyTimeout = setTimeout(() => {
-      console.warn("⚠️ [SplashPage] Safety timeout reached, forcing navigation");
       setIsVisible(false);
       setTimeout(() => {
         navigate(firstRunDone ? "/welcome" : "/onboarding", { replace: true });
       }, 100);
     }, 3000);
     
-    // Show splash for 1.5s
     const timer = setTimeout(() => {
       clearTimeout(safetyTimeout);
       setIsVisible(false);
       
-      // After fade out, navigate
       setTimeout(() => {
         if (firstRunDone) {
-          // Not first time - go to welcome/login
           navigate("/welcome", { replace: true });
         } else {
-          // First time - go to onboarding
           navigate("/onboarding", { replace: true });
         }
-      }, 300); // Wait for fade out animation
-    }, 1500);
+      }, 300);
+    }, 2000);
 
     return () => {
       clearTimeout(timer);
@@ -46,7 +39,7 @@ export default function SplashPage() {
 
   return (
     <div
-      className={`fixed inset-0 bg-[#0a0a0a] flex items-center justify-center z-50 transition-opacity duration-300 ${
+      className={`fixed inset-0 bg-[#22c55e] flex items-center justify-center z-50 transition-opacity duration-500 ${
         isVisible ? "opacity-100" : "opacity-0"
       }`}
     >
@@ -55,23 +48,52 @@ export default function SplashPage() {
           isVisible ? "scale-100 opacity-100" : "scale-95 opacity-0"
         }`}
       >
-        {/* Glow Effect */}
-        <div className="absolute w-96 h-96 bg-green-500/10 rounded-full blur-3xl animate-pulse" />
-        
-        {/* Logo with Text */}
-        <div className="relative mb-6">
-          <Logo size="xl" showText={true} className="animate-pulse" />
+        {/* Logo Container with Loading Ring */}
+        <div className="relative mb-8">
+          {/* Loading Ring Animation */}
+          <svg
+            className="absolute -inset-4 w-[calc(100%+32px)] h-[calc(100%+32px)] animate-spin-slow"
+            viewBox="0 0 100 100"
+          >
+            <circle
+              cx="50"
+              cy="50"
+              r="46"
+              fill="none"
+              stroke="rgba(255,255,255,0.2)"
+              strokeWidth="2"
+            />
+            <circle
+              cx="50"
+              cy="50"
+              r="46"
+              fill="none"
+              stroke="white"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeDasharray="72 216"
+              className="origin-center"
+            />
+          </svg>
+          
+          {/* White Circle with Logo */}
+          <div className="w-28 h-28 bg-white rounded-full flex items-center justify-center shadow-lg">
+            <img 
+              src={logoCalc} 
+              alt="Calc Logo" 
+              className="w-16 h-16 object-contain"
+            />
+          </div>
         </div>
         
-        {/* Subtitle */}
-        <p className="text-sm text-gray-400 animate-fade-in-delay">
-          Pulverização Agrícola
-        </p>
+        {/* App Name */}
+        <h1 className="text-3xl font-bold text-white tracking-wide">
+          Calc
+        </h1>
       </div>
     </div>
   );
 }
 
-// Export key for resetting
 export { FIRST_RUN_KEY };
 
