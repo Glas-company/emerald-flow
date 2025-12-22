@@ -13,6 +13,7 @@ import { MobileLayout } from "@/components/layout/MobileLayout";
 
 // Public Pages
 import SplashPage from "@/pages/SplashPage";
+import LoadingPage from "@/pages/LoadingPage";
 import Onboarding from "@/pages/Onboarding";
 import Welcome from "@/pages/auth/Welcome";
 import Login from "@/pages/auth/Login";
@@ -37,6 +38,9 @@ const App = () => (
           <Routes>
             {/* Root - Splash screen decides the flow */}
             <Route path="/" element={<SplashPage />} />
+            
+            {/* Loading page - aparece após login */}
+            <Route path="/loading" element={<LoadingPage />} />
             
             {/* Onboarding - for first-time users */}
             <Route path="/onboarding" element={<Onboarding />} />
@@ -65,8 +69,8 @@ const App = () => (
               </Route>
             </Route>
 
-            {/* Catch all - redirect to welcome */}
-            <Route path="*" element={<Navigate to="/welcome" replace />} />
+            {/* Catch all - redirect to login (Welcome só aparece após logout) */}
+            <Route path="*" element={<Navigate to="/auth/login" replace />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>

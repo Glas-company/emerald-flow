@@ -1,18 +1,26 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
 // Get environment variables using import.meta.env (Vite standard)
+// Vite only exposes variables prefixed with VITE_ to the client
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+// Debug: Log all VITE_ env vars (for troubleshooting)
+if (import.meta.env.DEV) {
+  console.log("🔍 [Supabase] All VITE_ environment variables:", Object.keys(import.meta.env).filter(key => key.startsWith('VITE_')));
+}
+
 // Clean and trim variables
-const trimmedUrl = supabaseUrl ? supabaseUrl.trim() : "";
-const trimmedKey = supabaseAnonKey ? supabaseAnonKey.trim() : "";
+const trimmedUrl = supabaseUrl ? String(supabaseUrl).trim() : "";
+const trimmedKey = supabaseAnonKey ? String(supabaseAnonKey).trim() : "";
 
 // Debug: Log environment variables (without exposing full keys)
 console.log("🔍 [Supabase] Checking environment variables...");
 console.log("🔍 [Supabase] VITE_SUPABASE_URL exists:", !!supabaseUrl);
-console.log("🔍 [Supabase] VITE_SUPABASE_URL value:", supabaseUrl ? `${trimmedUrl.substring(0, 20)}...` : "undefined");
+console.log("🔍 [Supabase] VITE_SUPABASE_URL type:", typeof supabaseUrl);
+console.log("🔍 [Supabase] VITE_SUPABASE_URL value:", supabaseUrl ? `${trimmedUrl.substring(0, 30)}...` : "undefined");
 console.log("🔍 [Supabase] VITE_SUPABASE_ANON_KEY exists:", !!supabaseAnonKey);
+console.log("🔍 [Supabase] VITE_SUPABASE_ANON_KEY type:", typeof supabaseAnonKey);
 console.log("🔍 [Supabase] VITE_SUPABASE_ANON_KEY length:", trimmedKey.length);
 
 // Validate environment variables

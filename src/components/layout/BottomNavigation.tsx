@@ -22,7 +22,7 @@ export function BottomNavigation() {
               to={item.path}
               className={({ isActive }) =>
                 cn(
-                  "flex flex-col items-center gap-1 py-2 px-4 rounded-xl transition-all duration-200 min-w-[60px]",
+                  "flex items-center justify-center py-3 px-4 rounded-xl transition-all duration-200 min-w-[60px]",
                   isActive
                     ? "text-green-400 bg-green-500/10"
                     : "text-gray-400 active:text-white active:bg-white/5"
@@ -31,15 +31,7 @@ export function BottomNavigation() {
               aria-label={item.label}
             >
               {({ isActive }) => (
-                <>
-                  <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
-                  <span className={cn(
-                    "text-[10px] font-medium",
-                    isActive ? "text-green-400" : "text-gray-500"
-                  )}>
-                    {item.label}
-                  </span>
-                </>
+                <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
               )}
             </NavLink>
           );

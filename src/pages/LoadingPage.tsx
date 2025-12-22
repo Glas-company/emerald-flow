@@ -4,12 +4,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import logoCalc from "@/assets/logo-calc.png";
 import { isProfileComplete } from "@/lib/userProfile";
 
-const FIRST_RUN_KEY = "calc:firstRunDone";
-
-export default function SplashPage() {
+/**
+ * Página de loading que aparece após login
+ * Mostra animação de splash e redireciona para o app ou onboarding
+ */
+export default function LoadingPage() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const [isVisible, setIsVisible] = useState(true);
+  const [redirecting, setRedirecting] = useState(false);
 
   useEffect(() => {
     // Se ainda está carregando, aguardar
@@ -17,57 +20,40 @@ export default function SplashPage() {
       return;
     }
 
-    const firstRunDone = localStorage.getItem(FIRST_RUN_KEY) === "true";
-    
-    const safetyTimeout = setTimeout(() => {
-      setIsVisible(false);
-      setTimeout(() => {
-        // Se usuário está logado, redirecionar para app
-        if (user) {
-          const checkProfile = async () => {
-            const profileComplete = await isProfileComplete();
-            if (profileComplete) {
-              navigate("/app/home", { replace: true });
-            } else {
-              navigate("/auth/profile-setup", { replace: true });
-            }
-          };
-          checkProfile();
-        } else {
-          // Se não está logado, ir para Welcome
+    // Se não tem usuário, redirecionar para welcome
+    if (!user) {
+      const timer = setTimeout(() => {
+        setIsVisible(false);
+        setTimeout(() => {
           navigate("/welcome", { replace: true });
-        }
-      }, 100);
-    }, 3000);
-    
-    const timer = setTimeout(() => {
-      clearTimeout(safetyTimeout);
+        }, 300);
+      }, 1500); // Mostrar splash por 1.5s
+
+      return () => clearTimeout(timer);
+    }
+
+    // Se tem usuário, verificar perfil e redirecionar
+    const checkAndRedirect = async () => {
+      setRedirecting(true);
+      
+      // Mostrar splash por pelo menos 1.5s
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      const profileComplete = await isProfileComplete();
+      
       setIsVisible(false);
       
       setTimeout(() => {
-        // Se usuário está logado, redirecionar para app
-        if (user) {
-          const checkProfile = async () => {
-            const profileComplete = await isProfileComplete();
-            if (profileComplete) {
-              navigate("/app/home", { replace: true });
-            } else {
-              navigate("/auth/profile-setup", { replace: true });
-            }
-          };
-          checkProfile();
+        if (profileComplete) {
+          navigate("/app/home", { replace: true });
         } else {
-          // Se não está logado, ir para Welcome
-          navigate("/welcome", { replace: true });
+          navigate("/auth/profile-setup", { replace: true });
         }
       }, 300);
-    }, 2000);
-
-    return () => {
-      clearTimeout(timer);
-      clearTimeout(safetyTimeout);
     };
-  }, [navigate, user, loading]);
+
+    checkAndRedirect();
+  }, [user, loading, navigate]);
 
   return (
     <div
@@ -122,10 +108,15 @@ export default function SplashPage() {
         <h1 className="text-3xl font-bold text-white tracking-wide">
           Calc
         </h1>
+        
+        {/* Loading Text */}
+        {redirecting && (
+          <p className="text-white/80 text-sm mt-4 animate-pulse">
+            Entrando...
+          </p>
+        )}
       </div>
     </div>
   );
 }
-
-export { FIRST_RUN_KEY };
 

@@ -41,9 +41,9 @@ export function ProtectedRoute() {
     }
   }
 
-  // Redirect to welcome if not authenticated
+  // Redirect to login if not authenticated (Welcome só aparece após logout)
   if (!user) {
-    return <Navigate to="/welcome" replace />;
+    return <Navigate to="/auth/login" replace />;
   }
 
   // Se estiver acessando rotas /app/* e o perfil não estiver completo, redirecionar para profile-setup

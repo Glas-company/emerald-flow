@@ -76,15 +76,8 @@ export default function Login() {
       );
       setIsSubmitting(false);
     } else {
-      // Verificar se o perfil está completo antes de redirecionar
-      const { isProfileComplete } = await import("@/lib/userProfile");
-      const profileComplete = await isProfileComplete();
-      
-      if (profileComplete) {
-        navigate("/app/home", { replace: true });
-      } else {
-        navigate("/auth/profile-setup", { replace: true });
-      }
+      // Após login bem-sucedido, redirecionar para página de loading (splash)
+      navigate("/loading", { replace: true });
     }
   };
 

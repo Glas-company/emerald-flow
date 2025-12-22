@@ -15,6 +15,8 @@ import {
   type DoseMode,
   type ProductUnit,
 } from "@/lib/calcUtils";
+import { incrementCalculations, addHectares, incrementSavedCalculations } from "@/lib/userStats";
+import { saveCalculation } from "@/lib/calcHistory";
 
 export default function Calc() {
   const { toast } = useToast();
@@ -116,6 +118,15 @@ export default function Calc() {
       
       setResult(result);
       setErrors(null);
+      
+      // Registrar cálculo e hectares no perfil do usuário
+      incrementCalculations().catch(err => {
+        console.error("Erro ao registrar cálculo:", err);
+      });
+      
+      addHectares(area).catch(err => {
+        console.error("Erro ao adicionar hectares:", err);
+      });
     } else {
       setErrors(calculation.errors);
       setResult(null);
@@ -161,13 +172,8 @@ export default function Calc() {
       return;
     }
 
-    // Salvar no localStorage
-    const saved = localStorage.getItem("calc_history");
-    const history = saved ? JSON.parse(saved) : [];
-    
-    const calculationToSave = {
-      id: Date.now().toString(),
-      timestamp: new Date().toISOString(),
+    // Salvar usando a função utilitária
+    saveCalculation({
       input: {
         areaHa: parseFloat(areaHa),
         taxaLHa: parseFloat(applicationRate),
@@ -175,12 +181,13 @@ export default function Calc() {
         products,
       },
       result,
-    };
+      isFavorite: false,
+    });
 
-    history.unshift(calculationToSave);
-    // Manter apenas os últimos 50
-    const limitedHistory = history.slice(0, 50);
-    localStorage.setItem("calc_history", JSON.stringify(limitedHistory));
+    // Registrar cálculo salvo no perfil do usuário
+    incrementSavedCalculations().catch(err => {
+      console.error("Erro ao registrar cálculo salvo:", err);
+    });
 
     toast({
       title: "Salvo!",

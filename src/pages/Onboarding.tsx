@@ -6,28 +6,28 @@ import { FIRST_RUN_KEY } from "@/pages/SplashPage";
 
 const ONBOARDING_KEY = "calc_onboarding_completed";
 
-import droneAgricultureImg from "@/assets/drone-agriculture.png";
-import droneCaldaImg from "@/assets/drone-calda.png";
-import dronePrecisionImg from "@/assets/drone-precision.png";
+import onboarding1Img from "@/assets/onboarding-1.png";
+import onboarding2Img from "@/assets/onboarding-2.png";
+import onboarding3Img from "@/assets/onboarding-3.png";
 
 const slides = [
   {
     id: 1,
-    image: droneAgricultureImg,
+    image: onboarding1Img,
     title: "Pulverização com Drones",
     subtitle: "O futuro da agricultura de precisão",
     description: "Transforme sua operação agrícola com tecnologia de ponta. Precisão, eficiência e economia em cada voo.",
   },
   {
     id: 2,
-    image: droneCaldaImg,
+    image: onboarding2Img,
     title: "Calculadora de Calda Inteligente",
     subtitle: "Mistura perfeita, sempre",
     description: "Calcule a quantidade exata de produto para cada tanque. Suporte a múltiplos produtos e modos de dosagem. Economia garantida.",
   },
   {
     id: 3,
-    image: dronePrecisionImg,
+    image: onboarding3Img,
     title: "Precisão Total",
     subtitle: "Resultados que você pode confiar",
     description: "Controle completo de área, taxa de aplicação e volume. Nunca mais desperdice produto ou tempo. 100% de precisão.",
@@ -55,8 +55,8 @@ export default function Onboarding() {
     localStorage.setItem(FIRST_RUN_KEY, "true");
     // Marcar onboarding como completo no contexto e localStorage
     completeOnboarding();
-    // Redirecionar direto para a página de cadastro
-    navigate("/auth/register", { replace: true });
+    // Redirecionar para Welcome (página inicial)
+    navigate("/welcome", { replace: true });
   };
 
   const handleSkip = () => {
@@ -64,7 +64,7 @@ export default function Onboarding() {
     localStorage.setItem(FIRST_RUN_KEY, "true");
     // Marcar onboarding como completo
     completeOnboarding();
-    // Redirecionar para welcome (pode escolher login ou cadastro)
+    // Redirecionar para Welcome (página inicial)
     navigate("/welcome", { replace: true });
   };
 
@@ -84,12 +84,25 @@ export default function Onboarding() {
       </div>
 
       {/* Background Image with Overlay */}
-      <div className="absolute inset-0">
-        <img
-          src={slide.image}
-          alt={slide.title}
-          className="w-full h-full object-cover"
-        />
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="relative w-full h-full">
+          <img
+            key={`onboarding-${currentSlide}`}
+            src={slide.image}
+            alt={slide.title}
+            className="absolute inset-0 w-full h-full"
+            style={{
+              // Ajustes específicos por slide para melhor enquadramento em mobile
+              objectFit: 'cover', // Todos os slides com zoom
+              objectPosition: currentSlide === 0 
+                ? '45% center' // Slide 1: Centralizado para visualizar o drone no centro
+                : currentSlide === 1 
+                ? 'center center' // Slide 2: Centralizado para mostrar operador e drone
+                : '65% center' // Slide 3: Um pouco para a direita (65%) para visualizar o drone com zoom
+            }}
+            loading="eager"
+          />
+        </div>
         {/* Dark overlay for text readability */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90" />
         {/* Green accent overlay */}

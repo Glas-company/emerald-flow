@@ -83,18 +83,11 @@ export default function Register() {
       }
       setIsSubmitting(false);
     } else {
-      // Se o Supabase fez login automático (user existe), verificar perfil
+      // Se o Supabase fez login automático (user existe), ir para loading
       if (user) {
         setIsSubmitting(false);
-        // Verificar se o perfil está completo
-        const { isProfileComplete } = await import("@/lib/userProfile");
-        const profileComplete = await isProfileComplete();
-        
-        if (profileComplete) {
-          navigate("/app/home", { replace: true });
-        } else {
-          navigate("/auth/profile-setup", { replace: true });
-        }
+        // Redirecionar para página de loading (splash)
+        navigate("/loading", { replace: true });
       } else {
         // Caso contrário, mostra sucesso e redireciona para login
         setSuccess(true);
