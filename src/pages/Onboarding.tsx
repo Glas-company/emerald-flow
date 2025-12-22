@@ -6,24 +6,26 @@ import { FIRST_RUN_KEY } from "@/pages/SplashPage";
 
 const ONBOARDING_KEY = "calc_onboarding_completed";
 
+import droneAgricultureImg from "@/assets/drone-agriculture.png";
+
 const slides = [
   {
     id: 1,
-    image: "https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=1200&auto=format&fit=crop&q=80",
+    image: droneAgricultureImg,
     title: "Pulverização com Drones",
     subtitle: "O futuro da agricultura de precisão",
     description: "Transforme sua operação agrícola com tecnologia de ponta. Precisão, eficiência e economia em cada voo.",
   },
   {
     id: 2,
-    image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&auto=format&fit=crop&q=80",
+    image: droneAgricultureImg,
     title: "Calculadora de Calda Inteligente",
     subtitle: "Mistura perfeita, sempre",
     description: "Calcule a quantidade exata de produto para cada tanque. Suporte a múltiplos produtos e modos de dosagem. Economia garantida.",
   },
   {
     id: 3,
-    image: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=800&auto=format&fit=crop&q=80",
+    image: droneAgricultureImg,
     title: "Precisão Total",
     subtitle: "Resultados que você pode confiar",
     description: "Controle completo de área, taxa de aplicação e volume. Nunca mais desperdice produto ou tempo. 100% de precisão.",
