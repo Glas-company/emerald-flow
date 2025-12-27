@@ -16,27 +16,37 @@ export default function Register() {
   const [success, setSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Show splash while loading
-  if (loading) {
-    return <SplashScreen />;
-  }
-
-  // Redirect to app if already logged in
+  // Redirect to app if already logged in (keep hooks unconditional)
   useEffect(() => {
-    if (user && !loading) {
+    if (!loading && user) {
+      let cancelled = false;
+
       const checkProfile = async () => {
         const { isProfileComplete } = await import("@/lib/userProfile");
         const profileComplete = await isProfileComplete();
+        if (cancelled) return;
+
         if (profileComplete) {
           navigate("/app/home", { replace: true });
         } else {
           navigate("/auth/profile-setup", { replace: true });
         }
       };
+
       checkProfile();
+
+      return () => {
+        cancelled = true;
+      };
     }
   }, [user, loading, navigate]);
 
+  // Show splash while loading
+  if (loading) {
+    return <SplashScreen />;
+  }
+
+  // While redirecting (already logged in)
   if (user) {
     return <SplashScreen />;
   }

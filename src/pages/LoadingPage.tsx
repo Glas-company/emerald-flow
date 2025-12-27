@@ -15,9 +15,12 @@ export default function LoadingPage() {
   const [redirecting, setRedirecting] = useState(false);
 
   useEffect(() => {
-    // Se ainda está carregando, aguardar
+    // Fallback: se o AuthContext travar em loading por algum motivo, volta para o fluxo inicial
     if (loading) {
-      return;
+      const t = setTimeout(() => {
+        navigate("/", { replace: true });
+      }, 4500);
+      return () => clearTimeout(t);
     }
 
     // Se não tem usuário, redirecionar para welcome
@@ -35,14 +38,18 @@ export default function LoadingPage() {
     // Se tem usuário, verificar perfil e redirecionar
     const checkAndRedirect = async () => {
       setRedirecting(true);
-      
+
       // Mostrar splash por pelo menos 1.5s
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      const profileComplete = await isProfileComplete();
-      
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      // Evitar travar indefinidamente se a checagem do perfil demorar
+      const profileComplete = await Promise.race([
+        isProfileComplete(),
+        new Promise<boolean>((resolve) => setTimeout(() => resolve(false), 2500)),
+      ]);
+
       setIsVisible(false);
-      
+
       setTimeout(() => {
         if (profileComplete) {
           navigate("/app/home", { replace: true });
