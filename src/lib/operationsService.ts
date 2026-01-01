@@ -5,7 +5,9 @@
 
 import { supabase } from "./supabaseClient";
 import { classifySupabaseError, isTableNotFoundError } from "./supabaseErrorHandler";
-import type { Operation, OperationFormData } from "@/types/operation";
+import type { Operation, OperationFormData, OperationStatus } from "@/types/operation";
+
+export type { Operation, OperationFormData, OperationStatus } from "@/types/operation";
 
 /**
  * Calcular valores da operação automaticamente

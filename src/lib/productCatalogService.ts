@@ -194,10 +194,10 @@ export async function addCustomProduct(
     const optionalFields: Record<string, any> = {};
     
     // Adicionar campos opcionais apenas se tiverem valor ESTRITO (não string vazia)
-    if (product.dose_min !== undefined && product.dose_min !== null && product.dose_min !== "") {
+    if (product.dose_min !== undefined && product.dose_min !== null) {
       optionalFields.dose_min = product.dose_min;
     }
-    if (product.dose_max !== undefined && product.dose_max !== null && product.dose_max !== "") {
+    if (product.dose_max !== undefined && product.dose_max !== null) {
       optionalFields.dose_max = product.dose_max;
     }
     if (product.recommendations !== undefined && product.recommendations !== null && product.recommendations.trim() !== "") {

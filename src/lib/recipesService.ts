@@ -7,6 +7,8 @@ import { supabase } from "./supabaseClient";
 import { classifySupabaseError, isTableNotFoundError } from "./supabaseErrorHandler";
 import type { Recipe, RecipeFormData } from "@/types/recipe";
 
+export type { Recipe, RecipeFormData } from "@/types/recipe";
+
 /**
  * Salvar receita no Supabase
  */
