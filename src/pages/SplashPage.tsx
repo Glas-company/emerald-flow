@@ -1,142 +1,125 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import logoCalc from "@/assets/logo-calc.png";
-import { isProfileComplete } from "@/lib/userProfile";
-import { HAS_SEEN_ONBOARDING_KEY } from "@/pages/Onboarding";
 
 export default function SplashPage() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const [isVisible, setIsVisible] = useState(true);
+  const hasRedirected = useRef(false);
+  const [progress, setProgress] = useState(0);
 
+  // Animação de progresso
   useEffect(() => {
-    // Se ainda está carregando, aguardar
-    if (loading) {
-      return;
+    const interval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 100) return 100;
+        // Acelera no final
+        const increment = prev < 70 ? 3 : prev < 90 ? 5 : 10;
+        return Math.min(100, prev + increment);
+      });
+    }, 50);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Redirecionamento garantido
+  useEffect(() => {
+    // Safety timeout: SEMPRE redireciona após 2.5 segundos
+    const safetyTimer = setTimeout(() => {
+      if (!hasRedirected.current) {
+        hasRedirected.current = true;
+        if (user) {
+          navigate("/app/home", { replace: true });
+        } else {
+          navigate("/auth/login", { replace: true });
+        }
+      }
+    }, 2500);
+
+    return () => clearTimeout(safetyTimer);
+  }, [navigate, user]);
+
+  // Redireciona quando loading terminar E progresso chegar a 100%
+  useEffect(() => {
+    if (loading || hasRedirected.current || progress < 100) return;
+
+    hasRedirected.current = true;
+    if (user) {
+      navigate("/app/home", { replace: true });
+    } else {
+      navigate("/auth/login", { replace: true });
     }
-
-    const hasSeenOnboarding = localStorage.getItem(HAS_SEEN_ONBOARDING_KEY) === "1";
-    
-    const safetyTimeout = setTimeout(() => {
-      setIsVisible(false);
-      setTimeout(() => {
-        // Se usuário está logado, redirecionar para app
-        if (user) {
-          const checkProfile = async () => {
-            const profileComplete = await isProfileComplete();
-            if (profileComplete) {
-              navigate("/app/home", { replace: true });
-            } else {
-              navigate("/auth/profile-setup", { replace: true });
-            }
-          };
-          checkProfile();
-        } else {
-          // Se não está logado, verificar se é primeira vez
-          if (!hasSeenOnboarding) {
-            // Primeira vez: ir para Onboarding
-            navigate("/onboarding", { replace: true });
-          } else {
-            // Já passou pelo onboarding: ir para Welcome (tela inicial com login Google)
-            navigate("/welcome", { replace: true });
-          }
-        }
-      }, 100);
-    }, 3000);
-    
-    const timer = setTimeout(() => {
-      clearTimeout(safetyTimeout);
-      setIsVisible(false);
-      
-      setTimeout(() => {
-        // Se usuário está logado, redirecionar para app
-        if (user) {
-          const checkProfile = async () => {
-            const profileComplete = await isProfileComplete();
-            if (profileComplete) {
-              navigate("/app/home", { replace: true });
-            } else {
-              navigate("/auth/profile-setup", { replace: true });
-            }
-          };
-          checkProfile();
-        } else {
-          // Se não está logado, verificar se é primeira vez
-          if (!hasSeenOnboarding) {
-            // Primeira vez: ir para Onboarding
-            navigate("/onboarding", { replace: true });
-          } else {
-            // Já passou pelo onboarding: ir para Welcome (tela inicial com login Google)
-            navigate("/welcome", { replace: true });
-          }
-        }
-      }, 300);
-    }, 2000);
-
-    return () => {
-      clearTimeout(timer);
-      clearTimeout(safetyTimeout);
-    };
-  }, [navigate, user, loading]);
+  }, [navigate, user, loading, progress]);
 
   return (
-    <div
-      className={`fixed inset-0 bg-[#22c55e] flex items-center justify-center z-50 transition-opacity duration-500 ${
-        isVisible ? "opacity-100" : "opacity-0"
-      }`}
-    >
-      <div
-        className={`flex flex-col items-center transition-all duration-500 ${
-          isVisible ? "scale-100 opacity-100" : "scale-95 opacity-0"
-        }`}
-      >
-        {/* Logo Container with Loading Ring */}
-        <div className="relative mb-8">
-          {/* Loading Ring Animation */}
-          <svg
-            className="absolute -inset-4 w-[calc(100%+32px)] h-[calc(100%+32px)] animate-spin-slow"
-            viewBox="0 0 100 100"
-          >
-            <circle
-              cx="50"
-              cy="50"
-              r="46"
-              fill="none"
-              stroke="rgba(255,255,255,0.2)"
-              strokeWidth="2"
-            />
-            <circle
-              cx="50"
-              cy="50"
-              r="46"
-              fill="none"
-              stroke="white"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeDasharray="72 216"
-              className="origin-center"
-            />
-          </svg>
-          
-          {/* White Circle with Logo */}
-          <div className="w-28 h-28 bg-white rounded-full flex items-center justify-center shadow-lg">
-            <img 
-              src={logoCalc} 
-              alt="Calc Logo" 
-              className="w-16 h-16 object-contain"
-            />
-          </div>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-[#22c55e] via-[#16a34a] to-[#15803d] flex flex-col items-center justify-center">
+      {/* Logo container */}
+      <div className="w-24 h-24 bg-white rounded-[28px] flex items-center justify-center shadow-2xl mb-8 relative">
+        {/* Spinner animado ao redor do logo */}
+        <svg
+          className="absolute inset-0 w-full h-full animate-spin"
+          style={{ animationDuration: "2s" }}
+          viewBox="0 0 96 96"
+        >
+          <circle
+            cx="48"
+            cy="48"
+            r="44"
+            fill="none"
+            stroke="rgba(34, 197, 94, 0.2)"
+            strokeWidth="4"
+          />
+          <circle
+            cx="48"
+            cy="48"
+            r="44"
+            fill="none"
+            stroke="#22c55e"
+            strokeWidth="4"
+            strokeLinecap="round"
+            strokeDasharray="70 206"
+          />
+        </svg>
         
-        {/* App Name */}
-        <h1 className="text-3xl font-bold text-white tracking-wide">
-          Calc
-        </h1>
+        {/* Ícone interno */}
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M12 2L2 7L12 12L22 7L12 2Z"
+            fill="#22c55e"
+          />
+          <path
+            d="M2 17L12 22L22 17"
+            stroke="#22c55e"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M2 12L12 17L22 12"
+            stroke="#16a34a"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
       </div>
+
+      {/* Nome do app */}
+      <h1 className="text-white text-3xl font-bold tracking-tight mb-2">Calc</h1>
+      <p className="text-white/70 text-sm mb-8">Pulverização Inteligente</p>
+
+      {/* Barra de progresso */}
+      <div className="w-48 h-1.5 bg-white/20 rounded-full overflow-hidden">
+        <div
+          className="h-full bg-white rounded-full transition-all duration-100 ease-out"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+      
+      {/* Texto de loading */}
+      <p className="text-white/60 text-xs mt-4">
+        {progress < 100 ? "Carregando..." : "Pronto!"}
+      </p>
     </div>
   );
 }
-
-// FIRST_RUN_KEY removido - usando HAS_SEEN_ONBOARDING_KEY do Onboarding
-

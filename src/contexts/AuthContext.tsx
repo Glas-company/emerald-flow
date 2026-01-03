@@ -22,11 +22,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Safety timeout to prevent infinite loading
+    // Safety timeout to prevent infinite loading - reduzido para 2 segundos
     const safetyTimeout = setTimeout(() => {
       setLoading(false);
       console.warn("⚠️ [AuthContext] Loading timeout - forcing loading to false");
-    }, 5000); // 5 seconds max
+    }, 2000); // 2 seconds max
 
     // Get initial session
     const getInitialSession = async () => {

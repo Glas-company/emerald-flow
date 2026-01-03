@@ -7,7 +7,6 @@ import { getUserProfile, UserProfile } from "@/lib/userProfile";
 import { getSavedCalculations, formatCalculationDate as formatDate, type SavedCalculationData } from "@/lib/favoritesService";
 import { Operacoes } from "@/components/home/Operacoes";
 import { Relatorios } from "@/components/home/Relatorios";
-import { useToast } from "@/hooks/use-toast";
 import { Avatar } from "@/components/profile/Avatar";
 import { useNavigate } from "react-router-dom";
 import dronePainelImg from "@/assets/drone painel 1.webp";
@@ -59,8 +58,7 @@ export default function Home() {
   const [isFavorite, setIsFavorite] = useState(false);
   const { user } = useAuth();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  
-  // Dados para filtros
+  const [search, setSearch] = useState("");
   const [allCalculations, setAllCalculations] = useState<SavedCalculationData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -80,17 +78,14 @@ export default function Home() {
     if (user) {
       loadData();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]); // Remover category das dependências - não precisa recarregar quando muda categoria
+  }, [user]);
 
-  // Listener para recarregar quando um cálculo é salvo
   useEffect(() => {
     const handleCalculationSaved = () => {
       if (user) {
         loadData();
       }
     };
-
     window.addEventListener("calculationSaved", handleCalculationSaved);
     return () => {
       window.removeEventListener("calculationSaved", handleCalculationSaved);
@@ -99,10 +94,8 @@ export default function Home() {
 
   const loadData = async () => {
     if (!user) return;
-    
     setIsLoading(true);
     try {
-      // Carregar cálculos
       const calculations = await getSavedCalculations();
       setAllCalculations(calculations);
     } catch (error) {
@@ -112,9 +105,12 @@ export default function Home() {
     }
   };
 
-  // Get user name
   const userName = userProfile?.fullName || "Piloto";
 
+  const filteredCalculations = allCalculations.filter((calc) =>
+    calc.title.toLowerCase().includes(search.toLowerCase()) ||
+    calc.input.products.some((p) => p.name.toLowerCase().includes(search.toLowerCase()))
+  );
 
   return (
     <div className="space-y-6 pt-4 animate-fade-in">
@@ -135,6 +131,8 @@ export default function Home() {
             type="text"
             placeholder="Buscar receitas, cálculos..."
             className="w-full h-11 pl-10 pr-4 bg-white rounded-full text-[14px] text-[#1a1a1a] placeholder:text-[#8a8a8a] focus:outline-none shadow-sm"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
           />
         </div>
         <button className="w-11 h-11 rounded-full bg-[#1a1a1a] flex items-center justify-center shadow-lg">
@@ -162,13 +160,16 @@ export default function Home() {
         })}
       </div>
 
-      {/* Recent Calculations - Mostrar apenas se categoria for "Todos" */}
-      {category === "Todos" && <RecentCalculations />}
+      {/* Busca ativa */}
+      {search && (
+        <FilteredCalculations calculations={filteredCalculations} isLoading={isLoading} />
+      )}
+
+      {/* Recent Calculations */}
+      {!search && category === "Todos" && <RecentCalculations />}
 
       {/* Section Title */}
-      <h2 className="text-[15px] font-semibold text-[#1a1a1a] -mb-3">
-        Categorias
-      </h2>
+      <h2 className="text-[15px] font-semibold text-[#1a1a1a] -mb-3">Categorias</h2>
 
       {/* Category Chips */}
       <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-5 px-5 py-1">
@@ -189,87 +190,49 @@ export default function Home() {
       </div>
 
       {/* Conteúdo Filtrado */}
-      {category === "Cálculos" && (
+      {!search && category === "Cálculos" && (
         <FilteredCalculations calculations={allCalculations.slice(0, 5)} isLoading={isLoading} />
       )}
+      {!search && category === "Operações" && <Operacoes isLoading={isLoading} />}
+      {!search && category === "Relatórios" && <Relatorios isLoading={isLoading} />}
 
-      {category === "Operações" && (
-        <Operacoes isLoading={isLoading} />
-      )}
-
-      {category === "Relatórios" && (
-        <Relatorios isLoading={isLoading} />
-      )}
-
-      {/* Hero Card - Mostrar apenas se categoria for "Todos" */}
-      {category === "Todos" && (
-      <div className="relative rounded-[24px] overflow-hidden shadow-xl">
-        {/* Background Image */}
-        <div className="relative h-[240px]">
-          <img
-            src={featuredCard.image}
-            alt={featuredCard.title}
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-          
-          {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-
-          {/* Favorite Button */}
-          <button
-            onClick={() => setIsFavorite(!isFavorite)}
-            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-lg"
-          >
-            <Heart
-              size={18}
-              className={cn(
-                "transition-colors",
-                isFavorite ? "fill-red-500 text-red-500" : "text-[#1a1a1a]"
-              )}
-            />
-          </button>
-
-          {/* Drone Icon */}
-          <div className="absolute top-4 left-4 w-10 h-10 rounded-full bg-primary/90 backdrop-blur-sm flex items-center justify-center">
-            <Plane size={18} className="text-white" />
-          </div>
-
-          {/* Content */}
-          <div className="absolute bottom-0 left-0 right-0 p-4">
-            {/* Tag */}
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/20 backdrop-blur-sm text-white text-[11px] font-medium rounded-full mb-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-              {featuredCard.tag}
-            </span>
-
-            {/* Title */}
-            <h3 className="text-[22px] font-bold text-white mb-1.5">
-              {featuredCard.title}
-            </h3>
-
-            {/* Rating */}
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1 px-2 py-0.5 bg-white/20 backdrop-blur-sm rounded-full">
-                <Star size={10} className="text-yellow-400 fill-yellow-400" />
-                <span className="text-[10px] font-semibold text-white">
-                  {featuredCard.rating}
-                </span>
-              </div>
-              <span className="text-[10px] text-white/80">
-                {featuredCard.reviews} usuários
+      {/* Hero Card */}
+      {!search && category === "Todos" && (
+        <div className="relative rounded-[24px] overflow-hidden shadow-xl">
+          <div className="relative h-[240px]">
+            <img src={featuredCard.image} alt={featuredCard.title} className="absolute inset-0 w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+            <button
+              onClick={() => setIsFavorite(!isFavorite)}
+              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-lg"
+            >
+              <Heart size={18} className={cn("transition-colors", isFavorite ? "fill-red-500 text-red-500" : "text-[#1a1a1a]")} />
+            </button>
+            <div className="absolute top-4 left-4 w-10 h-10 rounded-full bg-primary/90 backdrop-blur-sm flex items-center justify-center">
+              <Plane size={18} className="text-white" />
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 p-4">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/20 backdrop-blur-sm text-white text-[11px] font-medium rounded-full mb-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                {featuredCard.tag}
               </span>
+              <h3 className="text-[22px] font-bold text-white mb-1.5">{featuredCard.title}</h3>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 px-2 py-0.5 bg-white/20 backdrop-blur-sm rounded-full">
+                  <Star size={10} className="text-yellow-400 fill-yellow-400" />
+                  <span className="text-[10px] font-semibold text-white">{featuredCard.rating}</span>
+                </div>
+                <span className="text-[10px] text-white/80">{featuredCard.reviews} usuários</span>
+              </div>
             </div>
           </div>
+          <Link to="/app/calc" className="bg-[#1a1a1a] px-4 py-3 flex items-center justify-between">
+            <span className="text-white text-[13px] font-medium">Abrir Calculadora</span>
+            <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center">
+              <ArrowRight size={16} className="text-white" />
+            </div>
+          </Link>
         </div>
-
-        {/* CTA Button */}
-        <Link to="/app/calc" className="bg-[#1a1a1a] px-4 py-3 flex items-center justify-between">
-          <span className="text-white text-[13px] font-medium">Abrir Calculadora</span>
-          <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center">
-            <ArrowRight size={16} className="text-white" />
-          </div>
-        </Link>
-      </div>
       )}
 
       {/* Galeria de Imagens - Mostrar apenas se categoria for "Todos" */}
@@ -296,7 +259,6 @@ export default function Home() {
   );
 }
 
-// Componente para mostrar cálculos filtrados
 function FilteredCalculations({ calculations, isLoading }: { calculations: SavedCalculationData[]; isLoading: boolean }) {
   const navigate = useNavigate();
 
@@ -304,7 +266,7 @@ function FilteredCalculations({ calculations, isLoading }: { calculations: Saved
     return (
       <div className="text-center py-8">
         <div className="w-8 h-8 border-2 border-gray-300 border-t-primary rounded-full animate-spin mx-auto mb-2" />
-        <p className="text-sm text-[#8a8a8a]">Carregando cálculos...</p>
+        <p className="text-sm text-[#8a8a8a]">Carregando...</p>
       </div>
     );
   }
@@ -322,9 +284,7 @@ function FilteredCalculations({ calculations, isLoading }: { calculations: Saved
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h2 className="text-[15px] font-semibold text-[#1a1a1a]">Cálculos</h2>
-        <Link to="/app/calculos" className="text-[12px] text-green-600 font-medium">
-          Ver todos
-        </Link>
+        <Link to="/app/calculos" className="text-[12px] text-green-600 font-medium">Ver todos</Link>
       </div>
       {calculations.map((calc) => (
         <div
@@ -338,14 +298,10 @@ function FilteredCalculations({ calculations, isLoading }: { calculations: Saved
                 <Calculator size={16} className="text-green-600" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-medium text-[#1a1a1a] truncate">
-                  {calc.title}
-                </p>
+                <p className="text-[13px] font-medium text-[#1a1a1a] truncate">{calc.title}</p>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <Calendar size={10} className="text-[#8a8a8a]" />
-                  <span className="text-[10px] text-[#8a8a8a]">
-                    {formatDate(calc.timestamp)}
-                  </span>
+                  <span className="text-[10px] text-[#8a8a8a]">{formatDate(calc.timestamp)}</span>
                 </div>
               </div>
             </div>
@@ -357,7 +313,6 @@ function FilteredCalculations({ calculations, isLoading }: { calculations: Saved
   );
 }
 
-// Componente para mostrar cálculos recentes
 function RecentCalculations() {
   const navigate = useNavigate();
   const [recentCalculations, setRecentCalculations] = useState<SavedCalculationData[]>([]);
@@ -366,35 +321,25 @@ function RecentCalculations() {
     const loadRecent = async () => {
       try {
         const all = await getSavedCalculations();
-        setRecentCalculations(all.slice(0, 3)); // Mostrar apenas os 3 mais recentes
+        setRecentCalculations(all.slice(0, 3));
       } catch (error) {
         console.error("Erro ao carregar cálculos recentes:", error);
       }
     };
     loadRecent();
 
-    // Listener para recarregar quando um cálculo é salvo
-    const handleCalculationSaved = () => {
-      loadRecent();
-    };
-
+    const handleCalculationSaved = () => loadRecent();
     window.addEventListener("calculationSaved", handleCalculationSaved);
-    return () => {
-      window.removeEventListener("calculationSaved", handleCalculationSaved);
-    };
+    return () => window.removeEventListener("calculationSaved", handleCalculationSaved);
   }, []);
 
-  if (recentCalculations.length === 0) {
-    return null;
-  }
+  if (recentCalculations.length === 0) return null;
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h2 className="text-[15px] font-semibold text-[#1a1a1a]">Cálculos Recentes</h2>
-        <Link to="/app/favoritos" className="text-[12px] text-green-600 font-medium">
-          Ver todos
-        </Link>
+        <Link to="/app/favoritos" className="text-[12px] text-green-600 font-medium">Ver todos</Link>
       </div>
       <div className="space-y-2">
         {recentCalculations.map((calc) => (
@@ -409,14 +354,10 @@ function RecentCalculations() {
                   <Calculator size={16} className="text-green-600" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-medium text-[#1a1a1a] truncate">
-                    {calc.title}
-                  </p>
+                  <p className="text-[13px] font-medium text-[#1a1a1a] truncate">{calc.title}</p>
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <Calendar size={10} className="text-[#8a8a8a]" />
-                    <span className="text-[10px] text-[#8a8a8a]">
-                      {formatDate(calc.timestamp)}
-                    </span>
+                    <span className="text-[10px] text-[#8a8a8a]">{formatDate(calc.timestamp)}</span>
                   </div>
                 </div>
               </div>
@@ -428,4 +369,3 @@ function RecentCalculations() {
     </div>
   );
 }
-

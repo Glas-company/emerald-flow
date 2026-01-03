@@ -1,27 +1,52 @@
 import { Logo } from "@/components/Logo";
 
+/**
+ * Tela de carregamento minimalista estilo iOS/Android
+ * Duração visual: pelo menos 4 segundos
+ */
 export function SplashScreen() {
   return (
-    <div className="fixed inset-0 bg-[#0a0a0a] flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-[#6ee7b7] flex items-center justify-center z-50">
       <div className="flex flex-col items-center">
-        {/* Glow Effect */}
-        <div className="absolute w-96 h-96 bg-green-500/10 rounded-full blur-3xl animate-pulse" />
-        
-        {/* Logo with Text */}
-        <div className="relative mb-8">
-          <Logo size="xl" showText={true} className="animate-pulse" />
-        </div>
-        
-        {/* Subtitle */}
-        <p className="text-sm text-gray-400 mb-12">Pulverização Agrícola</p>
-        
-        {/* Loading Spinner */}
-        <div className="relative">
-          <div className="w-8 h-8 border-2 border-green-500/20 rounded-full" />
-          <div className="absolute inset-0 w-8 h-8 border-2 border-transparent border-t-green-500 rounded-full animate-spin" />
+        {/* Card branco com loader */}
+        <div className="w-28 h-28 bg-white rounded-3xl flex items-center justify-center shadow-xl">
+          {/* Loader ring SVG minimalista */}
+          <svg
+            className="animate-spin-slow"
+            style={{ animationDuration: "1.8s" }}
+            width="56"
+            height="56"
+            viewBox="0 0 56 56"
+          >
+            <circle
+              cx="28"
+              cy="28"
+              r="24"
+              fill="none"
+              stroke="#e0f7ef"
+              strokeWidth="6"
+            />
+            {/* Gradiente animado */}
+            <defs>
+              <linearGradient id="loaderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#22c55e" />
+                <stop offset="100%" stopColor="#06b6d4" />
+              </linearGradient>
+            </defs>
+            <circle
+              cx="28"
+              cy="28"
+              r="24"
+              fill="none"
+              stroke="url(#loaderGradient)"
+              strokeWidth="6"
+              strokeLinecap="round"
+              strokeDasharray="108"
+              strokeDashoffset="32"
+            />
+          </svg>
         </div>
       </div>
     </div>
   );
 }
-

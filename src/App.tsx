@@ -13,7 +13,6 @@ import { RouteTransitionLoader } from "@/components/ui/RouteTransitionLoader";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 
 // Public Pages
-import SplashPage from "@/pages/SplashPage";
 import LoadingPage from "@/pages/LoadingPage";
 import Onboarding from "@/pages/Onboarding";
 import Welcome from "@/pages/auth/Welcome";
@@ -44,8 +43,8 @@ const App = () => (
         <BrowserRouter>
           <RouteTransitionLoader />
           <Routes>
-            {/* Root - Splash screen decides the flow */}
-            <Route path="/" element={<SplashPage />} />
+            {/* Root - redireciona direto para login */}
+            <Route path="/" element={<Navigate to="/auth/login" replace />} />
             
             {/* Loading page - aparece após login */}
             <Route path="/loading" element={<LoadingPage />} />

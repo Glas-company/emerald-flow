@@ -16,7 +16,6 @@ export function BottomNavigation() {
       <nav className="bg-[#1a1a1a] rounded-2xl px-2 py-1.5 flex items-center justify-around shadow-lg">
         {navItems.map((item) => {
           const Icon = item.icon;
-          
           return (
             <NavLink
               key={item.path}

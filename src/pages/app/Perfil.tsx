@@ -1,51 +1,29 @@
-import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { 
-  Settings, 
-  Bell, 
-  Shield, 
-  HelpCircle,
-  LogOut,
-  ChevronRight,
-  Edit2,
-  Building2,
-  Plane,
-  Check,
-  X
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
+import { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { Settings, HelpCircle, ChevronRight, LogOut, Pencil, Check, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { getUserProfile, UserProfile } from "@/lib/userProfile";
+import { useToast } from "@/hooks/use-toast";
+import { getUserProfile, saveUserProfile, UserProfile } from "@/lib/userProfile";
 import { getUserStats, UserStats } from "@/lib/userStats";
-import { updateUserName } from "@/lib/userAvatar";
-import { AvatarPicker } from "@/components/profile/AvatarPicker";
 import { getAvatarUrl } from "@/lib/avatarService";
+import { AvatarPicker } from "@/components/profile/AvatarPicker";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const menuItems = [
-  {
-    id: "notifications",
-    icon: Bell,
-    label: "Notificações",
-    description: "Gerenciar alertas",
-  },
-  {
-    id: "security",
-    icon: Shield,
-    label: "Segurança",
-    description: "Senha e privacidade",
-  },
   {
     id: "settings",
     icon: Settings,
     label: "Configurações",
     description: "Preferências do app",
+    path: "/app/configuracoes",
   },
   {
     id: "help",
     icon: HelpCircle,
     label: "Ajuda",
     description: "Suporte e FAQ",
+    path: "/app/ajuda",
   },
 ];
 
@@ -64,20 +42,17 @@ export default function Perfil() {
   useEffect(() => {
     const fetchData = async () => {
       if (user) {
-        // Buscar perfil do usuário
         const { profile } = await getUserProfile();
         if (profile) {
           setUserProfile(profile);
           setEditedName(profile.fullName);
         }
 
-        // Buscar estatísticas do usuário
         const { stats } = await getUserStats();
         if (stats) {
           setUserStats(stats);
         }
 
-        // Buscar avatar
         const avatar = await getAvatarUrl();
         setAvatarUrl(avatar);
       }
@@ -85,28 +60,15 @@ export default function Perfil() {
     fetchData();
   }, [user]);
 
-  const handleMenuClick = (itemId: string) => {
-    toast({
-      title: "Em breve",
-      description: "Esta funcionalidade será implementada em breve.",
-    });
+  const handleMenuClick = (path: string) => {
+    navigate(path);
   };
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
     await signOut();
-    
-    // Marcar que o usuário acabou de fazer logout (para mostrar Welcome)
-    // Esta flag permite que Welcome apareça apenas após logout
-    sessionStorage.setItem("calc_just_logged_out", "true");
-    
-    toast({
-      title: "Logout",
-      description: "Você foi desconectado com sucesso.",
-    });
-    navigate("/welcome", { replace: true });
+    navigate("/auth/login", { replace: true });
   };
-
 
   const handleSaveName = async () => {
     if (!editedName.trim()) {
@@ -119,22 +81,18 @@ export default function Perfil() {
     }
 
     setIsSavingName(true);
-    const { error } = await updateUserName(editedName);
+    const { error } = await saveUserProfile({ fullName: editedName.trim(), companyName: userProfile?.companyName || "" });
+    setIsSavingName(false);
 
     if (error) {
       toast({
         title: "Erro",
-        description: error.message || "Erro ao atualizar nome.",
+        description: "Não foi possível atualizar o nome.",
         variant: "destructive",
       });
-      setIsSavingName(false);
     } else {
-      // Atualizar perfil local
-      if (userProfile) {
-        setUserProfile({ ...userProfile, fullName: editedName.trim() });
-      }
+      setUserProfile((prev) => prev ? { ...prev, fullName: editedName.trim() } : null);
       setIsEditingName(false);
-      setIsSavingName(false);
       toast({
         title: "Sucesso",
         description: "Nome atualizado com sucesso!",
@@ -142,152 +100,124 @@ export default function Perfil() {
     }
   };
 
-  const handleCancelEditName = () => {
+  const handleCancelEdit = () => {
     setEditedName(userProfile?.fullName || "");
     setIsEditingName(false);
   };
 
-  // Get user data
-  const userEmail = user?.email || "usuario@exemplo.com";
-  const userName = userProfile?.fullName || userEmail.split("@")[0] || "Usuário";
-  const companyName = userProfile?.companyName || "";
-  const drones = userProfile?.drones || "";
-  const totalCalculations = userStats?.totalCalculations || 0;
-  const savedCalculations = userStats?.savedCalculations || 0;
-  const totalHectares = userStats?.totalHectares || 0;
+  const handleAvatarChange = (newUrl: string | null) => {
+    setAvatarUrl(newUrl);
+  };
 
   return (
-    <div className="space-y-6 pt-4 animate-fade-in">
+    <div className="pt-4 pb-8 animate-fade-in">
       {/* Header */}
-      <div className="text-center">
-        <h1 className="text-[20px] font-bold text-[#1a1a1a]">Meu Perfil</h1>
-      </div>
+      <h1 className="text-[20px] font-bold text-[#1a1a1a] mb-6">Meu Perfil</h1>
 
       {/* Profile Card */}
-      <div className="bg-white rounded-3xl p-6 shadow-sm">
-        <div className="flex flex-col items-center">
-          {/* Avatar */}
-          <div className="mb-4">
-            <AvatarPicker
-              avatarUrl={avatarUrl}
-              onAvatarChange={setAvatarUrl}
-              size="lg"
-              showControls={true}
-            />
-          </div>
-
-          {/* Name & Email */}
-          <div className="flex flex-col items-center mb-2">
-            {isEditingName ? (
-              <div className="flex items-center gap-2 mb-1">
-                <input
-                  type="text"
-                  value={editedName}
-                  onChange={(e) => setEditedName(e.target.value)}
-                  className="text-[18px] font-bold text-[#1a1a1a] text-center border-b-2 border-[#22c55e] focus:outline-none bg-transparent"
-                  autoFocus
-                />
-                <button
-                  onClick={handleSaveName}
-                  disabled={isSavingName}
-                  className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center hover:bg-green-600 transition-colors disabled:opacity-50"
-                >
-                  {isSavingName ? (
-                    <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : (
-                    <Check size={12} className="text-white" />
-                  )}
-                </button>
-                <button
-                  onClick={handleCancelEditName}
-                  className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center hover:bg-gray-400 transition-colors"
-                >
-                  <X size={12} className="text-white" />
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 mb-1">
-                <h2 className="text-[18px] font-bold text-[#1a1a1a] capitalize">{userName}</h2>
-                <button
-                  onClick={() => setIsEditingName(true)}
-                  className="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
-                >
-                  <Edit2 size={10} className="text-gray-600" />
-                </button>
-              </div>
-            )}
-            {companyName && (
-              <div className="flex items-center gap-1.5 px-3 py-1 bg-green-50 rounded-full border border-green-200">
-                <Building2 size={12} className="text-green-600" />
-                <span className="text-[11px] font-medium text-green-700">{companyName}</span>
-              </div>
-            )}
-          </div>
-          <p className="text-[13px] text-[#8a8a8a] mb-4">{userEmail}</p>
-
-          {/* Company and Drones Info */}
-          {(companyName || drones) && (
-            <div className="w-full space-y-3 mb-4 pt-4 border-t border-gray-100">
-              {companyName && (
-                <div className="flex items-start gap-3 text-gray-700">
-                  <Building2 size={18} className="text-green-500 mt-0.5 flex-shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-[12px] text-gray-500 mb-0.5">Empresa</p>
-                    <p className="text-[13px] font-medium text-[#1a1a1a]">{companyName}</p>
-                  </div>
-                </div>
-              )}
-              {drones && (
-                <div className="flex items-start gap-3 text-gray-700">
-                  <Plane size={18} className="text-green-500 mt-0.5 flex-shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-[12px] text-gray-500 mb-0.5">Drones utilizados</p>
-                    <p className="text-[13px] font-medium text-[#1a1a1a]">{drones}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Stats */}
-          <div className="flex gap-8 pt-4 border-t border-gray-100 w-full justify-center">
-            <div className="text-center">
-              <p className="text-[20px] font-bold text-primary">{totalCalculations}</p>
-              <p className="text-[11px] text-[#8a8a8a]">Cálculos</p>
-            </div>
-            <div className="text-center">
-              <p className="text-[20px] font-bold text-primary">{savedCalculations}</p>
-              <p className="text-[11px] text-[#8a8a8a]">Salvos</p>
-            </div>
-            <div className="text-center">
-              <p className="text-[20px] font-bold text-primary">{totalHectares.toFixed(1)}</p>
-              <p className="text-[11px] text-[#8a8a8a]">Hectares</p>
-            </div>
-          </div>
+      <div className="bg-white rounded-2xl p-6 mb-6 shadow-sm border border-gray-100">
+        {/* Avatar */}
+        <div className="flex flex-col items-center mb-4">
+          <AvatarPicker
+            avatarUrl={avatarUrl}
+            onAvatarChange={handleAvatarChange}
+            size="lg"
+            showControls={true}
+          />
         </div>
+
+        {/* Name */}
+        <div className="flex items-center justify-center gap-2 mb-2">
+          {isEditingName ? (
+            <div className="flex items-center gap-2">
+              <Input
+                value={editedName}
+                onChange={(e) => setEditedName(e.target.value)}
+                className="h-9 text-center font-semibold"
+                autoFocus
+              />
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8"
+                onClick={handleSaveName}
+                disabled={isSavingName}
+              >
+                <Check size={16} className="text-green-500" />
+              </Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8"
+                onClick={handleCancelEdit}
+              >
+                <X size={16} className="text-red-500" />
+              </Button>
+            </div>
+          ) : (
+            <>
+              <h2 className="text-xl font-semibold text-[#1a1a1a]">
+                {userProfile?.fullName || "Usuário"}
+              </h2>
+              <button
+                onClick={() => setIsEditingName(true)}
+                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <Pencil size={14} className="text-gray-400" />
+              </button>
+            </>
+          )}
+        </div>
+
+        {/* Company Badge */}
+        {userProfile?.companyName && (
+          <div className="flex justify-center">
+            <span className="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-medium">
+              {userProfile.companyName}
+            </span>
+          </div>
+        )}
+
+        {/* Email */}
+        <p className="text-center text-gray-500 text-sm mt-2">
+          {user?.email}
+        </p>
       </div>
 
+      {/* Stats */}
+      {userStats && (
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="bg-white rounded-xl p-4 text-center shadow-sm border border-gray-100">
+            <p className="text-2xl font-bold text-[#1a1a1a]">{userStats.totalCalculations}</p>
+            <p className="text-sm text-gray-500">Cálculos</p>
+          </div>
+          <div className="bg-white rounded-xl p-4 text-center shadow-sm border border-gray-100">
+            <p className="text-2xl font-bold text-[#1a1a1a]">{userStats.savedCalculations}</p>
+            <p className="text-sm text-gray-500">Salvos</p>
+          </div>
+        </div>
+      )}
+
       {/* Menu Items */}
-      <div className="bg-white rounded-3xl overflow-hidden shadow-sm">
-        {menuItems.map((item, index) => {
+      <div className="space-y-2 mb-6">
+        {menuItems.map((item) => {
           const Icon = item.icon;
           return (
             <button
               key={item.id}
-              onClick={() => handleMenuClick(item.id)}
-              className={cn(
-                "w-full flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors",
-                index !== menuItems.length - 1 && "border-b border-gray-100"
-              )}
+              onClick={() => handleMenuClick(item.path)}
+              className="w-full bg-white rounded-xl p-4 flex items-center justify-between shadow-sm border border-gray-100 hover:bg-gray-50 transition-colors"
             >
-              <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
-                <Icon size={20} className="text-[#1a1a1a]" />
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                  <Icon size={20} className="text-gray-600" />
+                </div>
+                <div className="text-left">
+                  <p className="text-[14px] font-medium text-[#1a1a1a]">{item.label}</p>
+                  <p className="text-[12px] text-gray-500">{item.description}</p>
+                </div>
               </div>
-              <div className="flex-1 text-left">
-                <p className="text-[14px] font-medium text-[#1a1a1a]">{item.label}</p>
-                <p className="text-[12px] text-[#8a8a8a]">{item.description}</p>
-              </div>
-              <ChevronRight size={18} className="text-[#8a8a8a]" />
+              <ChevronRight size={20} className="text-gray-400" />
             </button>
           );
         })}
@@ -297,17 +227,11 @@ export default function Perfil() {
       <button
         onClick={handleLogout}
         disabled={isLoggingOut}
-        className="w-full flex items-center justify-center gap-3 p-4 bg-red-50 rounded-2xl text-red-600 font-medium hover:bg-red-100 transition-colors disabled:opacity-50"
+        className="w-full bg-red-50 text-red-600 rounded-xl p-4 flex items-center justify-center gap-2 font-medium hover:bg-red-100 transition-colors disabled:opacity-50"
       >
-        <LogOut size={18} />
-        <span className="text-[14px]">{isLoggingOut ? "Saindo..." : "Sair da conta"}</span>
+        <LogOut size={20} />
+        {isLoggingOut ? "Saindo..." : "Sair da conta"}
       </button>
-
-      {/* Version */}
-      <p className="text-center text-[11px] text-[#8a8a8a]">
-        Calc v1.0.0 • Pulverização Agrícola
-      </p>
     </div>
   );
 }
-

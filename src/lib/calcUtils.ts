@@ -34,6 +34,11 @@ export interface CalculationResult {
     totalProduto: number;      // Produto total no trabalho
     produtoPorTanque: number;  // Produto por tanque
   }[];
+  
+  // PASSO 5: Água
+  volumeTanqueL: number;         // Volume do tanque (para referência)
+  totalProdutosPorTanqueL: number;  // Total de produtos por tanque (em L)
+  aguaPorTanqueL: number;           // Água por tanque (em L)
 }
 
 export interface CalculationErrors {
@@ -214,11 +219,31 @@ export function calculateCalda(
     };
   });
 
+  // ========================
+  // PASSO 5 — ÁGUA POR TANQUE
+  // ========================
+  // Calcular o total de produtos por tanque em Litros
+  let totalProdutosPorTanqueL = 0;
+  produtos.forEach(p => {
+    // Se a unidade for mL, converter para L (dividir por 1000)
+    if (p.unit === 'mL') {
+      totalProdutosPorTanqueL += p.produtoPorTanque / 1000;
+    } else {
+      totalProdutosPorTanqueL += p.produtoPorTanque;
+    }
+  });
+
+  // Água por tanque = Volume do tanque - Total de produtos por tanque
+  const aguaPorTanqueL = input.volumeTanqueL - totalProdutosPorTanqueL;
+
   return {
     result: {
       volumeTotalL: formatNumber(volumeTotalL),
       numeroTanques,
       produtos,
+      volumeTanqueL: input.volumeTanqueL,
+      totalProdutosPorTanqueL: formatNumber(totalProdutosPorTanqueL, 3),
+      aguaPorTanqueL: formatNumber(aguaPorTanqueL, 2),
     },
   };
 }

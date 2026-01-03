@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { BouncingBallsLoader } from "@/components/ui/BouncingBallsLoader";
@@ -6,71 +6,66 @@ import { isProfileComplete } from "@/lib/userProfile";
 
 /**
  * Página de loading que aparece após login
- * Mostra animação e redireciona para o app ou completar perfil
+ * Mostra animação de splash e redireciona para o app ou onboarding
  */
 export default function LoadingPage() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
+  const [hasRedirected, setHasRedirected] = useState(false);
 
-  // Evita múltiplos redirects (ex: auth state mudando rápido)
-  const didNavigateRef = useRef(false);
-
-  const safeNavigate = useCallback(
-    (to: string) => {
-      if (didNavigateRef.current) return;
-      didNavigateRef.current = true;
-      navigate(to, { replace: true });
-    },
-    [navigate]
-  );
-
-  // Timeout absoluto: nunca ficar preso aqui para sempre
   useEffect(() => {
-    const hardTimeout = window.setTimeout(() => {
-      if (didNavigateRef.current) return;
-      console.warn("⚠️ [LoadingPage] Timeout absoluto - forçando redirecionamento");
-
-      // Se tiver usuário, mandar para completar perfil (rota segura)
-      if (user) {
-        safeNavigate("/auth/profile-setup");
-      } else {
-        safeNavigate("/auth/login");
+    // Safety timeout - nunca ficar nesta página por mais de 3 segundos
+    const safetyTimeout = setTimeout(() => {
+      console.warn("⚠️ [LoadingPage] Safety timeout - redirecting to home");
+      if (!hasRedirected) {
+        setHasRedirected(true);
+        if (user) {
+          navigate("/app/home", { replace: true });
+        } else {
+          navigate("/auth/login", { replace: true });
+        }
       }
-    }, 8000);
+    }, 3000);
 
-    return () => window.clearTimeout(hardTimeout);
-  }, [user, safeNavigate]);
+    return () => clearTimeout(safetyTimeout);
+  }, [user, navigate, hasRedirected]);
 
   useEffect(() => {
-    // Enquanto auth ainda carrega, aguardar
+    // Se já redirecionou, não fazer nada
+    if (hasRedirected) return;
+
+    // Se ainda está carregando auth, aguardar (mas safety timeout cuida)
     if (loading) return;
 
-    // Sem usuário: voltar para login
-    if (!user) {
-      const timer = window.setTimeout(() => {
-        safeNavigate("/auth/login");
-      }, 1500);
+    const doRedirect = async () => {
+      // Pequeno delay para mostrar o loader
+      await new Promise(resolve => setTimeout(resolve, 800));
 
-      return () => window.clearTimeout(timer);
-    }
+      if (hasRedirected) return;
+      setHasRedirected(true);
 
-    // Com usuário: checar perfil e redirecionar
-    const checkAndRedirect = async () => {
+      // Se não tem usuário, redirecionar para login
+      if (!user) {
+        navigate("/auth/login", { replace: true });
+        return;
+      }
+
+      // Se tem usuário, verificar perfil e redirecionar
       try {
-        // Mostrar splash por pelo menos 1.5s
-        await new Promise((resolve) => window.setTimeout(resolve, 1500));
-
         const profileComplete = await isProfileComplete();
-        safeNavigate(profileComplete ? "/app/home" : "/auth/profile-setup");
-      } catch (err) {
-        console.error("❌ [LoadingPage] Erro ao redirecionar:", err);
-        safeNavigate("/auth/login");
+        if (profileComplete) {
+          navigate("/app/home", { replace: true });
+        } else {
+          navigate("/auth/profile-setup", { replace: true });
+        }
+      } catch (error) {
+        console.error("❌ [LoadingPage] Error checking profile:", error);
+        navigate("/app/home", { replace: true });
       }
     };
 
-    checkAndRedirect();
-  }, [user, loading, safeNavigate]);
+    doRedirect();
+  }, [user, loading, navigate, hasRedirected]);
 
   return <BouncingBallsLoader />;
 }
-

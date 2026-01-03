@@ -1,6 +1,5 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { RouteTransitionLoader } from "@/components/ui/RouteTransitionLoader";
 import { useEffect, useState } from "react";
 import { isProfileComplete } from "@/lib/userProfile";
 
@@ -9,42 +8,61 @@ export function ProtectedRoute() {
   const location = useLocation();
   const [profileChecked, setProfileChecked] = useState(false);
   const [profileComplete, setProfileComplete] = useState(false);
+  const [forceRender, setForceRender] = useState(false);
+
+  // Timeout de segurança: força renderização após 4 segundos
+  useEffect(() => {
+    const safetyTimeout = setTimeout(() => {
+      console.warn("⚠️ [ProtectedRoute] Timeout de segurança atingido, forçando renderização");
+      setForceRender(true);
+      setProfileChecked(true);
+    }, 4000);
+    return () => clearTimeout(safetyTimeout);
+  }, []);
 
   // Check profile completion when user is available
   useEffect(() => {
     if (!loading && user && !profileChecked) {
       const checkProfile = async () => {
-        console.log("🔍 [ProtectedRoute] Verificando perfil do usuário...");
-        const complete = await isProfileComplete();
-        console.log("🔍 [ProtectedRoute] Perfil completo?", complete, "Path:", location.pathname);
-        setProfileComplete(complete);
-        setProfileChecked(true);
+        try {
+          console.log("🔍 [ProtectedRoute] Verificando perfil do usuário...");
+          const complete = await isProfileComplete();
+          console.log("🔍 [ProtectedRoute] Perfil completo?", complete, "Path:", location.pathname);
+          setProfileComplete(complete);
+        } catch (err) {
+          console.error("❌ [ProtectedRoute] Erro ao verificar perfil:", err);
+          setProfileComplete(true); // Assume completo para evitar loop
+        } finally {
+          setProfileChecked(true);
+        }
       };
       checkProfile();
     } else if (!loading && !user) {
-      // If not loading and no user, mark as checked to allow redirect
       setProfileChecked(true);
     }
   }, [user, loading, profileChecked, location.pathname]);
 
-  // Show loading while checking auth or profile
-  if (loading || !profileChecked) {
-    return <RouteTransitionLoader />;
+  // Show loading while checking auth or profile (mas respeita timeout)
+  if ((loading || !profileChecked) && !forceRender) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <span className="text-gray-400 text-base animate-pulse">Carregando...</span>
+      </div>
+    );
   }
 
-  // Redirect to login if not authenticated (Welcome só aparece após logout)
+  // Redirect to login if not authenticated
   if (!user) {
     return <Navigate to="/auth/login" replace />;
   }
 
-  // Se estiver acessando rotas /app/* e o perfil não estiver completo, redirecionar para profile-setup
-  // Mas permitir acesso a /auth/profile-setup mesmo sem perfil completo
+  // Se perfil incompleto e tentando acessar /app/*, redirecionar
   if (profileChecked && !profileComplete && location.pathname.startsWith("/app/")) {
     console.log("⚠️ [ProtectedRoute] Perfil incompleto, redirecionando para profile-setup");
     return <Navigate to="/auth/profile-setup" replace />;
   }
-  
-  // Se o perfil estiver completo e estiver tentando acessar profile-setup, redirecionar para home
+
+  // Se perfil completo e acessando profile-setup, redirecionar para home
   if (profileChecked && profileComplete && location.pathname === "/auth/profile-setup") {
     console.log("✅ [ProtectedRoute] Perfil completo, redirecionando de profile-setup para home");
     return <Navigate to="/app/home" replace />;
@@ -53,4 +71,3 @@ export function ProtectedRoute() {
   // Render protected content
   return <Outlet />;
 }
-
