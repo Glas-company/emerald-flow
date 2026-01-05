@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Building2, User, Plane, ArrowRight, AlertCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { saveUserProfile, UserProfile } from "@/lib/userProfile";
-import { SplashScreen } from "@/components/ui/SplashScreen";
-import { Logo } from "@/components/Logo";
+import { CircularLoader } from "@/components/ui/CircularLoader";
 import { AvatarPicker } from "@/components/profile/AvatarPicker";
 import { getAvatarUrl } from "@/lib/avatarService";
 
@@ -12,6 +11,7 @@ export default function ProfileSetup() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const [showSplash, setShowSplash] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const [formData, setFormData] = useState<UserProfile>({
     companyName: "",
     fullName: "",
@@ -27,13 +27,11 @@ export default function ProfileSetup() {
       if (user) {
         try {
           const url = await getAvatarUrl();
-          // Só atualizar se retornar uma URL válida (não exibir erro se não houver avatar)
           if (url) {
             setAvatarUrl(url);
           }
         } catch (err) {
-          // Silenciosamente ignorar erros ao carregar avatar (usuário pode não ter avatar ainda)
-          console.log("ℹ️ [ProfileSetup] Nenhum avatar encontrado ou erro ao carregar (normal para novo usuário)");
+          console.log("ℹ️ [ProfileSetup] Nenhum avatar encontrado");
         }
       }
     };
@@ -44,7 +42,8 @@ export default function ProfileSetup() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSplash(false);
-    }, 1500); // 1.5s igual ao splash inicial
+      setMounted(true);
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -56,9 +55,9 @@ export default function ProfileSetup() {
     }
   }, [user, loading, navigate]);
 
-  // Mostrar splash enquanto carrega ou durante animação
+  // Mostrar loader enquanto carrega
   if (loading || showSplash) {
-    return <SplashScreen />;
+    return <CircularLoader />;
   }
 
   // Se não tiver usuário, não renderiza (será redirecionado)
@@ -99,140 +98,185 @@ export default function ProfileSetup() {
       setIsSubmitting(false);
     } else {
       console.log("✅ [ProfileSetup] Perfil salvo com sucesso");
-      // Redirecionar imediatamente após salvar (sem delays)
       navigate("/app/home", { replace: true });
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex flex-col">
-      {/* Header */}
-      <div className="p-6 flex flex-col items-center">
-        <Logo size="lg" className="mb-4" />
-        <h1 className="text-2xl font-bold text-white text-center mb-2">
-          Complete seu perfil
-        </h1>
-        <p className="text-gray-400 text-sm text-center">
-          Preencha algumas informações para personalizar sua experiência
-        </p>
+    <div className="min-h-screen flex flex-col bg-[#22c55e] relative overflow-hidden">
+      {/* Área superior verde */}
+      <div className="h-[12vh] min-h-[80px] relative flex items-center justify-center">
+        {/* Pode adicionar um ícone ou logo aqui se quiser */}
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col px-6 pb-8">
-        {/* Error Message */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-3">
-            <AlertCircle size={20} className="text-red-400 flex-shrink-0" />
-            <p className="text-sm text-red-400">{error}</p>
-          </div>
-        )}
+      {/* Área inferior branca com formulário */}
+      <div 
+        className={`flex-1 bg-white rounded-t-[32px] -mt-2 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] overflow-y-auto transition-all duration-500 ease-out ${
+          mounted ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+        }`}
+      >
+        <div className="px-6 pt-6 pb-8 max-w-md mx-auto w-full">
+          {/* Título */}
+          <h1 
+            className={`text-2xl font-semibold text-[#1D1D1F] text-center mb-2 transition-all duration-500 ease-out ${
+              mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            }`}
+            style={{ 
+              transitionDelay: '200ms',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif'
+            }}
+          >
+            Complete seu perfil
+          </h1>
+          
+          {/* Subtítulo */}
+          <p 
+            className={`text-sm text-[#86868B] text-center mb-6 transition-all duration-500 ease-out ${
+              mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            }`}
+            style={{ transitionDelay: '300ms' }}
+          >
+            Preencha algumas informações para personalizar sua experiência
+          </p>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Foto do Perfil (Opcional) */}
-          <div className="space-y-2">
-            <label className="text-sm text-gray-400 font-medium flex items-center gap-2">
-              <User size={16} />
-              Foto do Perfil
-              <span className="text-xs text-gray-500">(opcional)</span>
-            </label>
-            <div className="flex justify-center py-4">
-              <AvatarPicker
-                avatarUrl={avatarUrl}
-                onAvatarChange={setAvatarUrl}
-                size="lg"
-                showControls={true}
+          {/* Erro */}
+          {error && (
+            <div className="flex items-center gap-2 bg-red-50 border border-red-100 text-red-600 rounded-2xl px-4 py-3 mb-4">
+              <AlertCircle size={18} />
+              <span className="text-sm">{error}</span>
+            </div>
+          )}
+
+          {/* Formulário */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Foto do Perfil */}
+            <div 
+              className={`transition-all duration-500 ease-out ${
+                mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+              }`}
+              style={{ transitionDelay: '350ms' }}
+            >
+              <label className="block text-[#1D1D1F] text-sm font-medium mb-2 flex items-center gap-1.5">
+                <User size={16} className="text-[#86868B]" />
+                Foto do Perfil
+                <span className="text-xs text-[#86868B] font-normal">(opcional)</span>
+              </label>
+              <div className="flex justify-center py-3">
+                <AvatarPicker
+                  avatarUrl={avatarUrl}
+                  onAvatarChange={setAvatarUrl}
+                  size="lg"
+                  showControls={true}
+                />
+              </div>
+              <p className="text-xs text-[#86868B] text-center">
+                JPG, PNG ou WEBP. Máximo 3MB.
+              </p>
+            </div>
+
+            {/* Nome da Empresa */}
+            <div 
+              className={`transition-all duration-500 ease-out ${
+                mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+              }`}
+              style={{ transitionDelay: '400ms' }}
+            >
+              <label className="block text-[#1D1D1F] text-sm font-medium mb-2 flex items-center gap-1.5">
+                <Building2 size={16} className="text-[#86868B]" />
+                Nome da Empresa *
+              </label>
+              <input
+                type="text"
+                value={formData.companyName}
+                onChange={(e) =>
+                  setFormData({ ...formData, companyName: e.target.value })
+                }
+                placeholder="Ex: AgroTech Ltda"
+                className="w-full h-14 px-4 rounded-2xl border border-gray-200 bg-[#F5F5F7] text-[#1D1D1F] placeholder-[#86868B] focus:border-[#22c55e] focus:bg-white focus:outline-none transition-all"
+                disabled={isSubmitting}
+                autoComplete="organization"
               />
             </div>
-            <p className="text-xs text-gray-500 text-center">
-              JPG, PNG ou WEBP. Máximo 3MB.
-            </p>
-          </div>
 
-          {/* Nome da Empresa */}
-          <div className="space-y-2">
-            <label className="text-sm text-gray-400 font-medium flex items-center gap-2">
-              <Building2 size={16} />
-              Nome da Empresa *
-            </label>
-            <input
-              type="text"
-              value={formData.companyName}
-              onChange={(e) =>
-                setFormData({ ...formData, companyName: e.target.value })
-              }
-              placeholder="Ex: AgroTech Ltda"
-              className="w-full h-14 px-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder:text-gray-600 focus:outline-none focus:border-green-500/50 focus:bg-white/[0.07] transition-all"
+            {/* Nome Completo */}
+            <div 
+              className={`transition-all duration-500 ease-out ${
+                mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+              }`}
+              style={{ transitionDelay: '450ms' }}
+            >
+              <label className="block text-[#1D1D1F] text-sm font-medium mb-2 flex items-center gap-1.5">
+                <User size={16} className="text-[#86868B]" />
+                Seu Nome *
+              </label>
+              <input
+                type="text"
+                value={formData.fullName}
+                onChange={(e) =>
+                  setFormData({ ...formData, fullName: e.target.value })
+                }
+                placeholder="Ex: João Silva"
+                className="w-full h-14 px-4 rounded-2xl border border-gray-200 bg-[#F5F5F7] text-[#1D1D1F] placeholder-[#86868B] focus:border-[#22c55e] focus:bg-white focus:outline-none transition-all"
+                disabled={isSubmitting}
+                autoComplete="name"
+              />
+            </div>
+
+            {/* Drones (Opcional) */}
+            <div 
+              className={`transition-all duration-500 ease-out ${
+                mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+              }`}
+              style={{ transitionDelay: '500ms' }}
+            >
+              <label className="block text-[#1D1D1F] text-sm font-medium mb-2 flex items-center gap-1.5">
+                <Plane size={16} className="text-[#86868B]" />
+                Drones que você utiliza
+                <span className="text-xs text-[#86868B] font-normal">(opcional)</span>
+              </label>
+              <input
+                type="text"
+                value={formData.drones}
+                onChange={(e) =>
+                  setFormData({ ...formData, drones: e.target.value })
+                }
+                placeholder="Ex: DJI Agras T30, DJI Phantom 4"
+                className="w-full h-14 px-4 rounded-2xl border border-gray-200 bg-[#F5F5F7] text-[#1D1D1F] placeholder-[#86868B] focus:border-[#22c55e] focus:bg-white focus:outline-none transition-all"
+                disabled={isSubmitting}
+              />
+              <p className="text-xs text-[#86868B] mt-1">
+                Você pode listar múltiplos drones separados por vírgula
+              </p>
+            </div>
+
+            {/* Botão Continuar */}
+            <button
+              type="submit"
               disabled={isSubmitting}
-              autoComplete="organization"
-            />
-          </div>
-
-          {/* Nome Completo */}
-          <div className="space-y-2">
-            <label className="text-sm text-gray-400 font-medium flex items-center gap-2">
-              <User size={16} />
-              Seu Nome *
-            </label>
-            <input
-              type="text"
-              value={formData.fullName}
-              onChange={(e) =>
-                setFormData({ ...formData, fullName: e.target.value })
-              }
-              placeholder="Ex: João Silva"
-              className="w-full h-14 px-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder:text-gray-600 focus:outline-none focus:border-green-500/50 focus:bg-white/[0.07] transition-all"
-              disabled={isSubmitting}
-              autoComplete="name"
-            />
-          </div>
-
-          {/* Drones (Opcional) */}
-          <div className="space-y-2">
-            <label className="text-sm text-gray-400 font-medium flex items-center gap-2">
-              <Plane size={16} />
-              Drones que você utiliza
-              <span className="text-xs text-gray-500">(opcional)</span>
-            </label>
-            <input
-              type="text"
-              value={formData.drones}
-              onChange={(e) =>
-                setFormData({ ...formData, drones: e.target.value })
-              }
-              placeholder="Ex: DJI Agras T30, DJI Phantom 4"
-              className="w-full h-14 px-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder:text-gray-600 focus:outline-none focus:border-green-500/50 focus:bg-white/[0.07] transition-all"
-              disabled={isSubmitting}
-            />
-            <p className="text-xs text-gray-500">
-              Você pode listar múltiplos drones separados por vírgula
-            </p>
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full h-14 bg-green-500 text-white font-semibold rounded-2xl hover:bg-green-600 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-6 flex items-center justify-center gap-2"
-          >
-            {isSubmitting ? (
-              <>
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Salvando...
-              </>
-            ) : (
-              <>
-                Continuar
-                <ArrowRight size={20} />
-              </>
-            )}
-          </button>
-        </form>
-
-        {/* Spacer */}
-        <div className="flex-1" />
+              className={`w-full h-14 rounded-full font-semibold text-white transition-all duration-300 active:scale-[0.98] mt-4 flex items-center justify-center gap-2 ${
+                mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+              }`}
+              style={{ 
+                transitionDelay: '550ms',
+                background: isSubmitting ? "#86efac" : "#22c55e",
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif'
+              }}
+            >
+              {isSubmitting ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Salvando...
+                </>
+              ) : (
+                <>
+                  Continuar
+                  <ArrowRight size={20} />
+                </>
+              )}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );
 }
-

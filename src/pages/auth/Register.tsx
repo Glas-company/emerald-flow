@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Mail, Lock, Eye, EyeOff, ChevronLeft, AlertCircle, CheckCircle, Building2, Plane } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ChevronLeft, AlertCircle, CheckCircle, Building2, Plane, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function Register() {
@@ -10,6 +10,7 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [company, setCompany] = useState("");
   const [drone, setDrone] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -29,6 +30,7 @@ export default function Register() {
   }, [user, loading, navigate]);
 
   const validateForm = (): string | null => {
+    if (!fullName.trim()) return "Informe seu nome";
     if (!company.trim()) return "Informe o nome da empresa";
     if (!email.trim()) return "Digite seu e-mail";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "E-mail inválido";
@@ -49,16 +51,22 @@ export default function Register() {
     }
     setIsSubmitting(true);
     
-    console.log("🔄 [Register] Criando conta...");
-    const { error } = await signUp(email, password);
+    console.log("🔄 [Register] Criando conta com perfil...");
+    
+    // Criar conta com dados do perfil incluídos
+    const { error } = await signUp(email, password, {
+      fullName: fullName.trim(),
+      companyName: company.trim(),
+      drones: drone.trim() || undefined,
+    });
     
     if (error) {
       console.error("❌ [Register] Erro ao criar conta:", error);
       setError(error.message.includes("already registered") ? "Este e-mail já está cadastrado" : error.message);
       setIsSubmitting(false);
     } else {
-      // Conta criada com sucesso - sempre redirecionar para login
-      console.log("✅ [Register] Conta criada com sucesso!");
+      // Conta criada com sucesso - redirecionar para login
+      console.log("✅ [Register] Conta criada com perfil completo!");
       setSuccess(true);
       setIsSubmitting(false);
       
@@ -135,7 +143,7 @@ export default function Register() {
 
           {/* Formulário */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Nome Empresa */}
+            {/* Nome Completo */}
             <div 
               className={`transition-all duration-500 ease-out ${
                 mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
@@ -143,8 +151,30 @@ export default function Register() {
               style={{ transitionDelay: '350ms' }}
             >
               <label className="block text-[#1D1D1F] text-sm font-medium mb-2 flex items-center gap-1.5">
+                <User size={16} className="text-[#86868B]" />
+                Seu Nome *
+              </label>
+              <input
+                type="text"
+                value={fullName}
+                onChange={e => setFullName(e.target.value)}
+                className="w-full h-14 px-4 rounded-2xl border border-gray-200 bg-[#F5F5F7] text-[#1D1D1F] placeholder-[#86868B] focus:border-[#22c55e] focus:bg-white focus:outline-none transition-all"
+                placeholder="Ex: João Silva"
+                disabled={isSubmitting || success}
+                autoComplete="name"
+              />
+            </div>
+
+            {/* Nome Empresa */}
+            <div 
+              className={`transition-all duration-500 ease-out ${
+                mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+              }`}
+              style={{ transitionDelay: '400ms' }}
+            >
+              <label className="block text-[#1D1D1F] text-sm font-medium mb-2 flex items-center gap-1.5">
                 <Building2 size={16} className="text-[#86868B]" />
-                Nome da Empresa
+                Nome da Empresa *
               </label>
               <input
                 type="text"
@@ -162,7 +192,7 @@ export default function Register() {
               className={`transition-all duration-500 ease-out ${
                 mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               }`}
-              style={{ transitionDelay: '400ms' }}
+              style={{ transitionDelay: '450ms' }}
             >
               <label className="block text-[#1D1D1F] text-sm font-medium mb-2 flex items-center gap-1.5">
                 <Plane size={16} className="text-[#86868B]" />
@@ -185,7 +215,7 @@ export default function Register() {
               className={`transition-all duration-500 ease-out ${
                 mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               }`}
-              style={{ transitionDelay: '450ms' }}
+              style={{ transitionDelay: '500ms' }}
             >
               <label className="block text-[#1D1D1F] text-sm font-medium mb-2">Email</label>
               <div className="relative">
@@ -207,7 +237,7 @@ export default function Register() {
               className={`transition-all duration-500 ease-out ${
                 mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               }`}
-              style={{ transitionDelay: '500ms' }}
+              style={{ transitionDelay: '550ms' }}
             >
               <label className="block text-[#1D1D1F] text-sm font-medium mb-2">Senha</label>
               <div className="relative">
@@ -238,7 +268,7 @@ export default function Register() {
               className={`transition-all duration-500 ease-out ${
                 mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               }`}
-              style={{ transitionDelay: '550ms' }}
+              style={{ transitionDelay: '600ms' }}
             >
               <label className="block text-[#1D1D1F] text-sm font-medium mb-2">Confirmar senha</label>
               <div className="relative">
@@ -263,7 +293,7 @@ export default function Register() {
                 mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               }`}
               style={{ 
-                transitionDelay: '600ms',
+                transitionDelay: '650ms',
                 background: isSubmitting ? "#86efac" : "#22c55e",
                 fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif'
               }}

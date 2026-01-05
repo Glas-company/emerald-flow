@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
-import { SplashScreen } from "@/components/ui/SplashScreen";
+import { CircularLoader } from "@/components/ui/CircularLoader";
 import droneIcon from "@/assets/tela.png";
 
 // Versão do Welcome - deve ser a mesma do SplashPage
@@ -43,7 +43,7 @@ export default function Welcome() {
   }, [user, loading, navigate]);
 
   if (user) {
-    return <SplashScreen />;
+    return <CircularLoader />;
   }
 
   const handleContinue = () => {

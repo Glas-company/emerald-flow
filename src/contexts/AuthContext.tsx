@@ -2,11 +2,17 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 
+interface ProfileData {
+  fullName: string;
+  companyName: string;
+  drones?: string;
+}
+
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: { message: string } | null }>;
-  signUp: (email: string, password: string) => Promise<{ user: User | null; error: { message: string } | null }>;
+  signUp: (email: string, password: string, profileData?: ProfileData) => Promise<{ user: User | null; error: { message: string } | null }>;
   signInWithGoogle: () => Promise<{ error: { message: string } | null }>;
   signOut: () => Promise<void>;
 }
@@ -99,7 +105,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, profileData?: ProfileData) => {
     if (!supabase) {
       return { user: null, error: { message: "Supabase não configurado" } };
     }
@@ -107,13 +113,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       console.log("🔄 [AuthContext] Criando conta...");
       
+      // Se temos dados do perfil, incluir no user_metadata
+      const signUpOptions: any = {
+        emailRedirectTo: undefined,
+      };
+      
+      if (profileData) {
+        console.log("📍 [AuthContext] Incluindo dados do perfil no registro");
+        signUpOptions.data = {
+          full_name: profileData.fullName,
+          company_name: profileData.companyName,
+          drones: profileData.drones || "",
+          profile_completed: true, // Marca como completo pois veio do registro manual
+        };
+      }
+      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          // Desabilitar confirmação de email automática no cliente
-          emailRedirectTo: undefined,
-        },
+        options: signUpOptions,
       });
 
       if (error) {
@@ -122,6 +140,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
 
       console.log("✅ [AuthContext] Conta criada com sucesso");
+      if (profileData) {
+        console.log("✅ [AuthContext] Perfil salvo junto com a conta");
+      }
       
       // Fazer logout para forçar o usuário a fazer login manualmente
       // Isso garante um fluxo limpo sem auto-login
