@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Search, SlidersHorizontal, Heart, Star, ArrowRight, Calculator, Droplets, Plane, Calendar, ChevronRight, BookOpen, FlaskConical, Package } from "lucide-react";
+import { Search, Bell, Star, ArrowRight, Calculator, Droplets, Plane, Calendar, ChevronRight, BookOpen, FlaskConical, Package, History, MoreVertical, LayoutGrid } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { getUserProfile, UserProfile } from "@/lib/userProfile";
@@ -14,35 +14,6 @@ import { useNavigate } from "react-router-dom";
 import dronePainelImg from "@/assets/drone painel 1.webp";
 
 const categories = ["Todos", "Cálculos", "Operações", "Relatórios"];
-
-const quickActions = [
-  {
-    id: 1,
-    title: "Calculadora de Calda",
-    description: "Calcule a mistura ideal",
-    icon: Calculator,
-    path: "/app/calc",
-    color: "bg-primary",
-  },
-  {
-    id: 2,
-    title: "Histórico",
-    description: "Últimos cálculos",
-    icon: Droplets,
-    path: "/app/favoritos",
-    color: "bg-blue-500",
-  },
-];
-
-const featuredCard = {
-  id: 1,
-  title: "Pulverização Agrícola",
-  subtitle: "Drones",
-  image: dronePainelImg,
-  rating: 5.0,
-  reviews: 143,
-  tag: "Novo",
-};
 
 export default function Home() {
   const navigate = useNavigate();
@@ -87,11 +58,9 @@ export default function Home() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      // Carregar produtos (padrão + custom se user existir)
       const products = await getAllProducts(user?.id || "");
       setAllProducts(products);
 
-      // Carregar cálculos e receitas apenas se usuário logado
       if (user) {
         const [calculations, recipes] = await Promise.all([
           getSavedCalculations(),
@@ -107,7 +76,7 @@ export default function Home() {
     }
   };
 
-  const userName = userProfile?.fullName || "Piloto";
+  const userName = userProfile?.fullName?.split(" ")[0] || "Piloto";
 
   const filteredCalculations = allCalculations.filter((calc) =>
     calc.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -128,84 +97,134 @@ export default function Home() {
   );
 
   return (
-    <div className="space-y-6 pt-4 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-[20px] font-bold text-[#1a1a1a]">Olá, {userName}</h1>
-          <p className="text-[12px] text-[#8a8a8a]">Bem-vindo ao Calc</p>
+    <div className="space-y-7 pb-24 animate-fade-in bg-[#fdfdfd]">
+      {/* Redesigned Header */}
+      <div className="flex items-center justify-between pt-4 px-2">
+        <div className="flex items-center gap-3">
+          <Avatar linkTo="/app/perfil" size="md" />
         </div>
-        <Avatar linkTo="/app/perfil" size="md" />
+        <div className="flex items-center gap-2">
+          <button className="w-10 h-10 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center relative">
+            <Bell size={20} className="text-[#1a1a1a]" />
+            <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-orange-500 rounded-full border-2 border-white" />
+          </button>
+          <button className="w-10 h-10 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center">
+            <Star size={20} className="text-[#1a1a1a]" />
+          </button>
+        </div>
       </div>
 
-      {/* Search Bar */}
-      <div className="flex items-center gap-3">
-        <div className="flex-1 relative">
-          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8a8a8a]" />
+      <div className="px-2">
+        <p className="text-[18px] text-[#8a8a8a] font-medium">Olá,</p>
+        <h1 className="text-[32px] font-bold text-[#1a1a1a] leading-tight">
+          {userName}
+        </h1>
+      </div>
+
+      {/* Redesigned Search Bar */}
+      <div className="px-2">
+        <div className="relative group">
+          <Search size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-[#8a8a8a] group-focus-within:text-primary transition-colors" />
           <input
             type="text"
-            placeholder="Buscar produtos, receitas, cálculos..."
-            className="w-full h-11 pl-10 pr-4 bg-white rounded-full text-[14px] text-[#1a1a1a] placeholder:text-[#8a8a8a] focus:outline-none shadow-sm"
+            placeholder="Clique para pesquisar..."
+            className="w-full h-[60px] pl-14 pr-6 bg-[#f2f4f7] rounded-[24px] text-[16px] text-[#1a1a1a] placeholder:text-[#8a8a8a] focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all border-none"
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
         </div>
-        <button className="w-11 h-11 rounded-full bg-[#1a1a1a] flex items-center justify-center shadow-lg">
-          <SlidersHorizontal size={16} className="text-white" />
-        </button>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 gap-3">
-        {quickActions.map((action) => {
-          const Icon = action.icon;
-          return (
-            <Link
-              key={action.id}
-              to={action.path}
-              className="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center mb-3", action.color)}>
-                <Icon size={20} className="text-white" />
+      {/* Feature Cards - Side by Side Large Cards */}
+      {!search && (
+        <div className="grid grid-cols-2 gap-4 px-2">
+          <Link
+            to="/app/calc"
+            className="bg-[#ffe7d4] rounded-[32px] p-6 h-[180px] flex flex-col justify-between relative overflow-hidden group shadow-sm hover:shadow-md transition-all"
+          >
+            <div className="w-12 h-12 rounded-2xl bg-white/50 backdrop-blur-sm flex items-center justify-center">
+              <Calculator size={24} className="text-[#1a1a1a]" />
+            </div>
+            <div className="flex justify-between items-end">
+              <div>
+                <h3 className="text-[17px] font-bold text-[#1a1a1a]">Calculadora</h3>
+                <p className="text-[13px] text-[#1a1a1a]/60">Nova mistura</p>
               </div>
-              <h3 className="text-[14px] font-semibold text-[#1a1a1a]">{action.title}</h3>
-              <p className="text-[12px] text-[#8a8a8a]">{action.description}</p>
-            </Link>
-          );
-        })}
-      </div>
+              <MoreVertical size={16} className="text-[#1a1a1a]/40 mb-1" />
+            </div>
+          </Link>
 
-      {/* Busca ativa */}
-      {search && (
-        <SearchResults
-          calculations={filteredCalculations}
-          recipes={filteredRecipes}
-          products={filteredProducts}
-          isLoading={isLoading}
-          searchTerm={search}
-        />
+          <Link
+            to="/app/favoritos"
+            className="bg-[#e7e7ff] rounded-[32px] p-6 h-[180px] flex flex-col justify-between relative overflow-hidden group shadow-sm hover:shadow-md transition-all"
+          >
+            <div className="w-12 h-12 rounded-2xl bg-white/50 backdrop-blur-sm flex items-center justify-center">
+              <History size={24} className="text-[#1a1a1a]" />
+            </div>
+            <div className="flex justify-between items-end">
+              <div>
+                <h3 className="text-[17px] font-bold text-[#1a1a1a]">Histórico</h3>
+                <p className="text-[13px] text-[#1a1a1a]/60">{allCalculations.length} Registros</p>
+              </div>
+              <MoreVertical size={16} className="text-[#1a1a1a]/40 mb-1" />
+            </div>
+          </Link>
+        </div>
       )}
 
-      {/* Conteúdo quando NÃO há busca ativa */}
+      {/* Measurement Style Cards for Inventory/Recipes */}
       {!search && (
-        <>
-          {/* Recent Calculations */}
-          {category === "Todos" && <RecentCalculations />}
+        <div className="px-2 space-y-5">
+          <div className="flex items-center justify-between">
+            <h2 className="text-[22px] font-bold text-[#1a1a1a]">Suas Atividades</h2>
+            <button className="text-[#8a8a8a]">
+              <LayoutGrid size={20} />
+            </button>
+          </div>
 
-          {/* Section Title */}
-          <h2 className="text-[15px] font-semibold text-[#1a1a1a] -mb-3">Categorias</h2>
+          <div className="grid grid-cols-2 gap-4">
+            <Link to="/app/produtos" className="bg-[#f8faff] rounded-[28px] p-5 border border-gray-50 shadow-sm flex flex-col gap-4 active:scale-95 transition-all">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center">
+                  <Package size={16} className="text-blue-500" />
+                </div>
+                <span className="text-[13px] font-semibold text-[#1a1a1a]">Produtos</span>
+              </div>
+              <div>
+                <span className="text-[24px] font-bold text-[#1a1a1a]">{allProducts.length}</span>
+                <span className="text-[13px] text-[#8a8a8a] ml-1">itens</span>
+              </div>
+            </Link>
 
-          {/* Category Chips */}
-          <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-5 px-5 py-1">
+            <Link to="/app/receitas" className="bg-[#fffcf8] rounded-[28px] p-5 border border-gray-50 shadow-sm flex flex-col gap-4 active:scale-95 transition-all">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center">
+                  <FlaskConical size={16} className="text-orange-500" />
+                </div>
+                <span className="text-[13px] font-semibold text-[#1a1a1a]">Receitas</span>
+              </div>
+              <div>
+                <span className="text-[24px] font-bold text-[#1a1a1a]">{allRecipes.length}</span>
+                <span className="text-[13px] text-[#8a8a8a] ml-1">salvas</span>
+              </div>
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Category Tabs & Content */}
+      {!search && (
+        <div className="px-2 space-y-4">
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setCategory(cat)}
                 className={cn(
-                  "px-4 py-2 rounded-full text-[13px] font-medium whitespace-nowrap transition-all",
+                  "px-5 py-2.5 rounded-full text-[14px] font-bold whitespace-nowrap transition-all",
                   category === cat
-                    ? "bg-[#1a1a1a] text-white"
-                    : "bg-white text-[#1a1a1a] shadow-sm"
+                    ? "bg-[#1a1a1a] text-white shadow-md"
+                    : "bg-[#f2f4f7] text-[#8a8a8a]"
                 )}
               >
                 {cat}
@@ -213,54 +232,75 @@ export default function Home() {
             ))}
           </div>
 
-          {/* Conteúdo Filtrado por Categoria */}
-          {category === "Cálculos" && (
-            <FilteredCalculations calculations={allCalculations.slice(0, 5)} isLoading={isLoading} />
-          )}
-          {category === "Operações" && <Operacoes isLoading={isLoading} />}
-          {category === "Relatórios" && <Relatorios isLoading={isLoading} />}
-        </>
-      )}
-
-      {/* Hero Card */}
-      {!search && category === "Todos" && (
-        <div className="relative rounded-[24px] overflow-hidden shadow-xl">
-          <div className="relative h-[240px]">
-            <img src={featuredCard.image} alt={featuredCard.title} className="absolute inset-0 w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-            <button
-              onClick={() => setIsFavorite(!isFavorite)}
-              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-lg"
-            >
-              <Heart size={18} className={cn("transition-colors", isFavorite ? "fill-red-500 text-red-500" : "text-[#1a1a1a]")} />
-            </button>
-            <div className="absolute top-4 left-4 w-10 h-10 rounded-full bg-primary/90 backdrop-blur-sm flex items-center justify-center">
-              <Plane size={18} className="text-white" />
-            </div>
-            <div className="absolute bottom-0 left-0 right-0 p-4">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/20 backdrop-blur-sm text-white text-[11px] font-medium rounded-full mb-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                {featuredCard.tag}
-              </span>
-              <h3 className="text-[22px] font-bold text-white mb-1.5">{featuredCard.title}</h3>
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1 px-2 py-0.5 bg-white/20 backdrop-blur-sm rounded-full">
-                  <Star size={10} className="text-yellow-400 fill-yellow-400" />
-                  <span className="text-[10px] font-semibold text-white">{featuredCard.rating}</span>
+          <div className="mt-2">
+            {category === "Todos" && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-[20px] font-bold text-[#1a1a1a]">Cálculos Recentes</h2>
+                  <Link to="/app/favoritos" className="text-[14px] font-semibold text-green-600">Ver todos</Link>
                 </div>
-                <span className="text-[10px] text-white/80">{featuredCard.reviews} usuários</span>
+                <RecentCalculations />
               </div>
-            </div>
+            )}
+            {category === "Cálculos" && (
+              <FilteredCalculations calculations={allCalculations.slice(0, 10)} isLoading={isLoading} />
+            )}
+            {category === "Operações" && <Operacoes isLoading={isLoading} />}
+            {category === "Relatórios" && <Relatorios isLoading={isLoading} />}
           </div>
-          <Link to="/app/calc" className="bg-[#1a1a1a] px-4 py-3 flex items-center justify-between">
-            <span className="text-white text-[13px] font-medium">Abrir Calculadora</span>
-            <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center">
-              <ArrowRight size={16} className="text-white" />
-            </div>
-          </Link>
         </div>
       )}
 
+      {/* Active Search Results Overlay */}
+      {search && (
+        <div className="px-2">
+          <SearchResults
+            calculations={filteredCalculations}
+            recipes={filteredRecipes}
+            products={filteredProducts}
+            isLoading={isLoading}
+            searchTerm={search}
+          />
+        </div>
+      )}
+
+      {/* Featured Banner - Modern Style */}
+      {!search && category === "Todos" && (
+        <div className="px-2 pb-6">
+          <div className="relative rounded-[32px] overflow-hidden shadow-xl group">
+            <div className="relative h-[260px]">
+              <img src={dronePainelImg} alt="Banner" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+              
+              <div className="absolute top-6 left-6 flex gap-2">
+                <div className="px-3 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-white text-[12px] font-bold border border-white/20">
+                  Drones
+                </div>
+                <div className="px-3 py-1.5 bg-primary/80 backdrop-blur-md rounded-full text-white text-[12px] font-bold border border-white/10">
+                  Novo
+                </div>
+              </div>
+
+              <div className="absolute bottom-6 left-6 right-6">
+                <h3 className="text-[26px] font-bold text-white mb-2 leading-tight">Pulverização Agrícola de Precisão</h3>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-1.5">
+                    <Star size={14} className="text-yellow-400 fill-yellow-400" />
+                    <span className="text-[14px] font-bold text-white">5.0</span>
+                  </div>
+                  <span className="text-[14px] text-white/70">143 pilotos ativos</span>
+                </div>
+              </div>
+            </div>
+            <Link to="/app/calc" className="bg-[#1a1a1a] px-6 py-4 flex items-center justify-between group-hover:bg-primary transition-colors">
+              <span className="text-white text-[15px] font-bold tracking-wide uppercase">Começar Agora</span>
+              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                <ArrowRight size={20} className="text-white" />
+              </div>
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -279,26 +319,27 @@ function SearchResults({ calculations, recipes, products, isLoading, searchTerm 
 
   if (isLoading) {
     return (
-      <div className="text-center py-8">
-        <div className="w-8 h-8 border-2 border-gray-300 border-t-primary rounded-full animate-spin mx-auto mb-2" />
-        <p className="text-sm text-[#8a8a8a]">Buscando...</p>
+      <div className="text-center py-12">
+        <div className="w-10 h-10 border-4 border-gray-100 border-t-primary rounded-full animate-spin mx-auto mb-4" />
+        <p className="text-[#8a8a8a] font-medium">Buscando...</p>
       </div>
     );
   }
 
   if (totalResults === 0) {
     return (
-      <div className="text-center py-12 bg-white rounded-2xl border border-gray-100">
-        <Search size={32} className="mx-auto text-gray-400 mb-2" />
-        <p className="text-sm font-medium text-[#1a1a1a] mb-1">Nenhum resultado encontrado</p>
-        <p className="text-xs text-[#8a8a8a]">
-          Tente buscar por "{searchTerm}" com outros termos
+      <div className="text-center py-20 bg-white rounded-[32px] border border-gray-50 shadow-sm">
+        <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+          <Search size={32} className="text-gray-300" />
+        </div>
+        <p className="text-[18px] font-bold text-[#1a1a1a] mb-1">Nenhum resultado</p>
+        <p className="text-[14px] text-[#8a8a8a] px-8">
+          Tente buscar por "{searchTerm}" com outros termos.
         </p>
       </div>
     );
   }
 
-  // Mapeamento de cores por categoria de produto
   const getCategoryColor = (category: string) => {
     const colors: Record<string, { bg: string; text: string }> = {
       Herbicida: { bg: "bg-orange-100", text: "text-orange-600" },
@@ -311,26 +352,21 @@ function SearchResults({ calculations, recipes, products, isLoading, searchTerm 
   };
 
   return (
-    <div className="space-y-4">
-      {/* Header de resultados */}
+    <div className="space-y-6">
       <div className="flex items-center gap-2">
-        <span className="text-[13px] text-[#8a8a8a]">
-          {totalResults} resultado{totalResults !== 1 ? 's' : ''} para "{searchTerm}"
-        </span>
+        <div className="px-3 py-1 bg-primary/10 rounded-full">
+          <span className="text-[13px] font-bold text-primary">
+            {totalResults} RESULTADOS
+          </span>
+        </div>
+        <span className="text-[13px] text-[#8a8a8a]">para "{searchTerm}"</span>
       </div>
 
-      {/* Produtos */}
       {products.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Package size={14} className="text-amber-600" />
-              <h2 className="text-[15px] font-semibold text-[#1a1a1a]">Produtos</h2>
-              <span className="text-[11px] text-[#8a8a8a] bg-gray-100 px-2 py-0.5 rounded-full">
-                {products.length}
-              </span>
-            </div>
-            <Link to="/app/produtos" className="text-[12px] text-amber-600 font-medium">Ver todos</Link>
+            <h2 className="text-[16px] font-bold text-[#1a1a1a] uppercase tracking-wider">Produtos</h2>
+            <Link to="/app/produtos" className="text-[12px] font-bold text-amber-600">VER TODOS</Link>
           </div>
           {products.slice(0, 3).map((product) => {
             const categoryColor = getCategoryColor(product.category);
@@ -338,141 +374,100 @@ function SearchResults({ calculations, recipes, products, isLoading, searchTerm 
               <div
                 key={product.id}
                 onClick={() => navigate("/app/produtos")}
-                className="bg-white rounded-xl p-3 shadow-sm border border-gray-100 cursor-pointer hover:border-amber-300 hover:shadow-md transition-all"
+                className="bg-white rounded-[24px] p-4 shadow-sm border border-gray-50 cursor-pointer active:scale-95 transition-all"
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0">
-                      <Package size={16} className="text-amber-600" />
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0">
+                      <Package size={20} className="text-amber-600" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[13px] font-medium text-[#1a1a1a] truncate">{product.name}</p>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className={cn("text-[10px] px-1.5 py-0.5 rounded", categoryColor.bg, categoryColor.text)}>
+                      <p className="text-[15px] font-bold text-[#1a1a1a] truncate">{product.name}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full uppercase", categoryColor.bg, categoryColor.text)}>
                           {product.category}
                         </span>
-                        <span className="text-[10px] text-[#8a8a8a]">
+                        <span className="text-[11px] font-medium text-[#8a8a8a]">
                           {product.doseValue} {product.doseUnit}/ha
                         </span>
                       </div>
                     </div>
                   </div>
-                  <ChevronRight size={16} className="text-[#8a8a8a] flex-shrink-0 ml-2" />
+                  <ChevronRight size={18} className="text-[#8a8a8a]/40" />
                 </div>
               </div>
             );
           })}
-          {products.length > 3 && (
-            <button
-              onClick={() => navigate("/app/produtos")}
-              className="w-full py-2 text-[12px] text-amber-600 font-medium bg-amber-50 rounded-lg hover:bg-amber-100 transition-colors"
-            >
-              Ver mais {products.length - 3} produto{products.length - 3 !== 1 ? 's' : ''}
-            </button>
-          )}
         </div>
       )}
 
-      {/* Receitas */}
       {recipes.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <FlaskConical size={14} className="text-purple-600" />
-              <h2 className="text-[15px] font-semibold text-[#1a1a1a]">Receitas</h2>
-              <span className="text-[11px] text-[#8a8a8a] bg-gray-100 px-2 py-0.5 rounded-full">
-                {recipes.length}
-              </span>
-            </div>
-            <Link to="/app/receitas" className="text-[12px] text-purple-600 font-medium">Ver todas</Link>
+            <h2 className="text-[16px] font-bold text-[#1a1a1a] uppercase tracking-wider">Receitas</h2>
+            <Link to="/app/receitas" className="text-[12px] font-bold text-purple-600">VER TODOS</Link>
           </div>
           {recipes.slice(0, 3).map((recipe) => (
             <div
               key={recipe.id}
               onClick={() => navigate("/app/receitas")}
-              className="bg-white rounded-xl p-3 shadow-sm border border-gray-100 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all"
+              className="bg-white rounded-[24px] p-4 shadow-sm border border-gray-50 cursor-pointer active:scale-95 transition-all"
             >
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center flex-shrink-0">
-                    <BookOpen size={16} className="text-purple-600" />
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center flex-shrink-0">
+                    <BookOpen size={20} className="text-purple-600" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-medium text-[#1a1a1a] truncate">{recipe.name}</p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-[10px] text-[#8a8a8a]">
-                        {recipe.products.length} produto{recipe.products.length !== 1 ? 's' : ''}
+                    <p className="text-[15px] font-bold text-[#1a1a1a] truncate">{recipe.name}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-[11px] font-bold text-purple-600 bg-purple-100/50 px-2 py-0.5 rounded-full uppercase">
+                        {recipe.products.length} PRODUTOS
                       </span>
                       {recipe.tags && recipe.tags.length > 0 && (
-                        <>
-                          <span className="text-[#d4d4d4]">•</span>
-                          <span className="text-[10px] text-purple-600">
-                            {recipe.tags.slice(0, 2).join(", ")}
-                          </span>
-                        </>
+                        <span className="text-[11px] font-medium text-[#8a8a8a] truncate">
+                          • {recipe.tags.slice(0, 2).join(", ")}
+                        </span>
                       )}
                     </div>
                   </div>
                 </div>
-                <ChevronRight size={16} className="text-[#8a8a8a] flex-shrink-0 ml-2" />
+                <ChevronRight size={18} className="text-[#8a8a8a]/40" />
               </div>
             </div>
           ))}
-          {recipes.length > 3 && (
-            <button
-              onClick={() => navigate("/app/receitas")}
-              className="w-full py-2 text-[12px] text-purple-600 font-medium bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
-            >
-              Ver mais {recipes.length - 3} receita{recipes.length - 3 !== 1 ? 's' : ''}
-            </button>
-          )}
         </div>
       )}
 
-      {/* Cálculos */}
       {calculations.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Calculator size={14} className="text-green-600" />
-              <h2 className="text-[15px] font-semibold text-[#1a1a1a]">Cálculos</h2>
-              <span className="text-[11px] text-[#8a8a8a] bg-gray-100 px-2 py-0.5 rounded-full">
-                {calculations.length}
-              </span>
-            </div>
-            <Link to="/app/calculos" className="text-[12px] text-green-600 font-medium">Ver todos</Link>
+            <h2 className="text-[16px] font-bold text-[#1a1a1a] uppercase tracking-wider">Cálculos</h2>
+            <Link to="/app/calculos" className="text-[12px] font-bold text-green-600">VER TODOS</Link>
           </div>
           {calculations.slice(0, 3).map((calc) => (
             <div
               key={calc.id}
               onClick={() => navigate(`/app/favoritos/${calc.id}`)}
-              className="bg-white rounded-xl p-3 shadow-sm border border-gray-100 cursor-pointer hover:border-primary/50 hover:shadow-md transition-all"
+              className="bg-white rounded-[24px] p-4 shadow-sm border border-gray-50 cursor-pointer active:scale-95 transition-all"
             >
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center flex-shrink-0">
-                    <Calculator size={16} className="text-green-600" />
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center flex-shrink-0">
+                    <Calculator size={20} className="text-green-600" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-medium text-[#1a1a1a] truncate">{calc.title}</p>
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                      <Calendar size={10} className="text-[#8a8a8a]" />
-                      <span className="text-[10px] text-[#8a8a8a]">{formatDate(calc.timestamp)}</span>
+                    <p className="text-[15px] font-bold text-[#1a1a1a] truncate">{calc.title}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Calendar size={12} className="text-[#8a8a8a]" />
+                      <span className="text-[11px] font-medium text-[#8a8a8a]">{formatDate(calc.timestamp)}</span>
                     </div>
                   </div>
                 </div>
-                <ChevronRight size={16} className="text-[#8a8a8a] flex-shrink-0 ml-2" />
+                <ChevronRight size={18} className="text-[#8a8a8a]/40" />
               </div>
             </div>
           ))}
-          {calculations.length > 3 && (
-            <button
-              onClick={() => navigate("/app/calculos")}
-              className="w-full py-2 text-[12px] text-green-600 font-medium bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
-            >
-              Ver mais {calculations.length - 3} cálculo{calculations.length - 3 !== 1 ? 's' : ''}
-            </button>
-          )}
         </div>
       )}
     </div>
@@ -484,48 +479,43 @@ function FilteredCalculations({ calculations, isLoading }: { calculations: Saved
 
   if (isLoading) {
     return (
-      <div className="text-center py-8">
-        <div className="w-8 h-8 border-2 border-gray-300 border-t-primary rounded-full animate-spin mx-auto mb-2" />
-        <p className="text-sm text-[#8a8a8a]">Carregando...</p>
+      <div className="text-center py-12">
+        <div className="w-10 h-10 border-4 border-gray-100 border-t-primary rounded-full animate-spin mx-auto mb-4" />
       </div>
     );
   }
 
   if (calculations.length === 0) {
     return (
-      <div className="text-center py-12 bg-white rounded-2xl border border-gray-100">
-        <Calculator size={32} className="mx-auto text-gray-400 mb-2" />
-        <p className="text-sm text-[#8a8a8a]">Nenhum cálculo encontrado.</p>
+      <div className="text-center py-12 bg-white rounded-[32px] border border-gray-50 shadow-sm">
+        <Calculator size={40} className="mx-auto text-gray-200 mb-3" />
+        <p className="text-[#8a8a8a] font-medium">Nenhum cálculo encontrado.</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h2 className="text-[15px] font-semibold text-[#1a1a1a]">Cálculos</h2>
-        <Link to="/app/calculos" className="text-[12px] text-green-600 font-medium">Ver todos</Link>
-      </div>
       {calculations.map((calc) => (
         <div
           key={calc.id}
           onClick={() => navigate(`/app/favoritos/${calc.id}`)}
-          className="bg-white rounded-xl p-3 shadow-sm border border-gray-100 cursor-pointer hover:border-primary/50 hover:shadow-md transition-all"
+          className="bg-white rounded-[24px] p-4 shadow-sm border border-gray-50 cursor-pointer active:scale-95 transition-all"
         >
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 flex-1 min-w-0">
-              <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center flex-shrink-0">
-                <Calculator size={16} className="text-green-600" />
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center flex-shrink-0">
+                <Calculator size={20} className="text-green-600" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-medium text-[#1a1a1a] truncate">{calc.title}</p>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <Calendar size={10} className="text-[#8a8a8a]" />
-                  <span className="text-[10px] text-[#8a8a8a]">{formatDate(calc.timestamp)}</span>
+                <p className="text-[15px] font-bold text-[#1a1a1a] truncate">{calc.title}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <Calendar size={12} className="text-[#8a8a8a]" />
+                  <span className="text-[11px] font-medium text-[#8a8a8a]">{formatDate(calc.timestamp)}</span>
                 </div>
               </div>
             </div>
-            <ChevronRight size={16} className="text-[#8a8a8a] flex-shrink-0 ml-2" />
+            <ChevronRight size={18} className="text-[#8a8a8a]/40" />
           </div>
         </div>
       ))}
@@ -557,35 +547,29 @@ function RecentCalculations() {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h2 className="text-[15px] font-semibold text-[#1a1a1a]">Cálculos Recentes</h2>
-        <Link to="/app/favoritos" className="text-[12px] text-green-600 font-medium">Ver todos</Link>
-      </div>
-      <div className="space-y-2">
-        {recentCalculations.map((calc) => (
-          <div
-            key={calc.id}
-            onClick={() => navigate(`/app/favoritos/${calc.id}`)}
-            className="bg-white rounded-xl p-3 shadow-sm border border-gray-100 cursor-pointer hover:border-primary/50 hover:shadow-md transition-all"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 flex-1 min-w-0">
-                <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center flex-shrink-0">
-                  <Calculator size={16} className="text-green-600" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-medium text-[#1a1a1a] truncate">{calc.title}</p>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <Calendar size={10} className="text-[#8a8a8a]" />
-                    <span className="text-[10px] text-[#8a8a8a]">{formatDate(calc.timestamp)}</span>
-                  </div>
+      {recentCalculations.map((calc) => (
+        <div
+          key={calc.id}
+          onClick={() => navigate(`/app/favoritos/${calc.id}`)}
+          className="bg-white rounded-[24px] p-4 shadow-sm border border-gray-50 cursor-pointer active:scale-95 transition-all"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center flex-shrink-0">
+                <Calculator size={20} className="text-green-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[15px] font-bold text-[#1a1a1a] truncate">{calc.title}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <Calendar size={12} className="text-[#8a8a8a]" />
+                  <span className="text-[11px] font-medium text-[#8a8a8a]">{formatDate(calc.timestamp)}</span>
                 </div>
               </div>
-              <ChevronRight size={14} className="text-[#8a8a8a] flex-shrink-0 ml-2" />
             </div>
+            <ChevronRight size={18} className="text-[#8a8a8a]/40" />
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
     </div>
   );
 }
