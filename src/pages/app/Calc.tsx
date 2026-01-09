@@ -212,14 +212,18 @@ export default function Calc() {
       products: produtosParaCalculo,
     };
 
+    console.log("💾 [Calc] Salvando cálculo...", { input, result });
     const { id, error } = await saveCalculation(input, result);
+    console.log("💾 [Calc] Resultado do salvamento:", { id, error });
     setIsSaving(false);
 
     if (error) {
+      console.error("❌ [Calc] Erro ao salvar:", error);
       toast({ title: "Erro", description: error.message || "Erro ao salvar cálculo.", variant: "destructive" });
-    } else if (id) {
+    } else {
+      console.log("✅ [Calc] Cálculo salvo com sucesso, ID:", id);
       window.dispatchEvent(new CustomEvent("calculationSaved"));
-      toast({ title: "Cálculo salvo com sucesso", description: "O cálculo foi adicionado aos favoritos." });
+      toast({ title: "Cálculo salvo com sucesso", description: "Acesse o Histórico para visualizar." });
     }
   };
 

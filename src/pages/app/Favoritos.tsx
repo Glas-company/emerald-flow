@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Heart, Calculator, Trash2, Calendar, ChevronRight, RefreshCw } from "lucide-react";
+import { History, Calculator, Trash2, Calendar, Eye, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import { 
   getSavedCalculations,
   deleteCalculation,
@@ -18,39 +19,41 @@ export default function Favoritos() {
   const [calculations, setCalculations] = useState<SavedCalculationData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Carregar cálculos ao montar o componente (não depende do user)
   useEffect(() => {
-    if (user) {
-      loadFavorites();
-    } else {
-      setIsLoading(false);
-    }
+    loadFavorites();
+  }, []);
+
+  // Recarregar quando user mudar
+  useEffect(() => {
+    loadFavorites();
   }, [user]);
 
   // Listener para recarregar quando um cálculo é salvo
   useEffect(() => {
     const handleCalculationSaved = () => {
-      if (user) {
-        loadFavorites();
-      }
+      console.log("📢 [Histórico] Evento calculationSaved recebido");
+      loadFavorites();
     };
 
     window.addEventListener("calculationSaved", handleCalculationSaved);
     return () => {
       window.removeEventListener("calculationSaved", handleCalculationSaved);
     };
-  }, [user]);
+  }, []);
 
   const loadFavorites = async () => {
+    console.log("🔄 [Histórico] Iniciando carregamento...");
     setIsLoading(true);
     try {
       const favorites = await getSavedCalculations();
-      console.log("📊 [Favoritos] Cálculos carregados:", favorites.length);
+      console.log("📊 [Histórico] Cálculos carregados:", favorites.length, favorites);
       setCalculations(favorites);
     } catch (error) {
-      console.error("❌ [Favoritos] Erro ao carregar:", error);
+      console.error("❌ [Histórico] Erro ao carregar:", error);
       toast({
         title: "Erro",
-        description: "Erro ao carregar favoritos.",
+        description: "Erro ao carregar histórico.",
         variant: "destructive",
       });
     } finally {
@@ -61,7 +64,7 @@ export default function Favoritos() {
   const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Evitar navegar ao clicar no botão de deletar
     
-    if (confirm("Tem certeza que deseja excluir este cálculo dos favoritos?")) {
+    if (confirm("Tem certeza que deseja excluir este cálculo do histórico?")) {
       const { error } = await deleteCalculation(id);
       
       if (error) {
@@ -74,7 +77,7 @@ export default function Favoritos() {
         loadFavorites();
         toast({
           title: "Excluído",
-          description: "Cálculo removido dos favoritos.",
+          description: "Cálculo removido do histórico.",
         });
       }
     }
@@ -88,7 +91,7 @@ export default function Favoritos() {
     return (
       <div className="flex flex-col items-center justify-center h-full py-20 text-center animate-fade-in pt-4">
         <div className="w-12 h-12 border-2 border-gray-300 border-t-primary rounded-full animate-spin mb-4" />
-        <p className="text-sm text-[#8a8a8a]">Carregando favoritos...</p>
+        <p className="text-sm text-[#8a8a8a]">Carregando histórico...</p>
       </div>
     );
   }
@@ -96,12 +99,12 @@ export default function Favoritos() {
   if (calculations.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full py-20 text-center animate-fade-in pt-4">
-        <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4">
-          <Heart size={32} className="text-red-400" />
+        <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-4">
+          <History size={32} className="text-green-500" />
         </div>
-        <h2 className="text-xl font-bold text-[#1a1a1a] mb-2">Nenhum favorito ainda</h2>
+        <h2 className="text-xl font-bold text-[#1a1a1a] mb-2">Nenhum cálculo salvo</h2>
         <p className="text-sm text-[#8a8a8a] max-w-[250px]">
-          Favorite cálculos para acessá-los rapidamente aqui.
+          Seus cálculos salvos aparecerão aqui para fácil acesso.
         </p>
       </div>
     );
@@ -112,8 +115,8 @@ export default function Favoritos() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[20px] font-bold text-[#1a1a1a]">Favoritos</h1>
-          <p className="text-[12px] text-[#8a8a8a]">{calculations.length} cálculo{calculations.length !== 1 ? 's' : ''} favoritado{calculations.length !== 1 ? 's' : ''}</p>
+          <h1 className="text-[20px] font-bold text-[#1a1a1a]">Histórico</h1>
+          <p className="text-[12px] text-[#8a8a8a]">{calculations.length} cálculo{calculations.length !== 1 ? 's' : ''} salvo{calculations.length !== 1 ? 's' : ''}</p>
         </div>
         <button
           onClick={loadFavorites}
@@ -130,8 +133,7 @@ export default function Favoritos() {
         {calculations.map((calc) => (
           <div
             key={calc.id}
-            onClick={() => handleCardClick(calc.id)}
-            className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 cursor-pointer hover:border-primary/50 hover:shadow-md transition-all active:scale-[0.98]"
+            className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-all"
           >
             {/* Header */}
             <div className="flex items-start justify-between mb-3">
@@ -151,15 +153,13 @@ export default function Favoritos() {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-1 flex-shrink-0">
-                <button
-                  onClick={(e) => handleDelete(calc.id, e)}
-                  className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
-                >
-                  <Trash2 size={14} className="text-gray-600" />
-                </button>
-                <ChevronRight size={18} className="text-[#8a8a8a]" />
-              </div>
+              <button
+                onClick={(e) => handleDelete(calc.id, e)}
+                className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center hover:bg-red-100 transition-colors"
+                title="Excluir"
+              >
+                <Trash2 size={14} className="text-red-500" />
+              </button>
             </div>
 
             {/* Summary */}
@@ -189,6 +189,15 @@ export default function Favoritos() {
                 </p>
               </div>
             </div>
+
+            {/* Botão Visualizar */}
+            <Button
+              onClick={() => handleCardClick(calc.id)}
+              className="w-full mt-4 h-11 bg-green-500 hover:bg-green-600 text-white rounded-xl font-semibold"
+            >
+              <Eye size={18} className="mr-2" />
+              Visualizar
+            </Button>
           </div>
         ))}
       </div>

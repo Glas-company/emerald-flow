@@ -147,14 +147,14 @@ export async function saveCalculation(
     if (supabaseResult.id) {
       return supabaseResult;
     }
-    // Se falhar mas não for erro crítico, retornar erro
-    if (!supabaseResult.error?.message.includes("Tabela")) {
-      return supabaseResult;
+    // Log do erro mas continua para tentar localStorage
+    if (supabaseResult.error) {
+      console.warn("⚠️ [FavoritesService] Erro ao salvar no Supabase:", supabaseResult.error.message);
     }
   }
 
-  // Fallback para localStorage
-  console.log("📦 [FavoritesService] Usando localStorage como fallback");
+  // Fallback para localStorage (sempre salva aqui como backup)
+  console.log("📦 [FavoritesService] Salvando no localStorage");
   return await saveToLocalStorage(calculation);
 }
 
@@ -242,28 +242,26 @@ async function getFromLocalStorage(): Promise<SavedCalculationData[]> {
  * Buscar todos os cálculos salvos (tenta Supabase primeiro, fallback localStorage)
  */
 export async function getSavedCalculations(): Promise<SavedCalculationData[]> {
+  // Primeiro buscar do localStorage (sempre disponível)
+  const localData = await getFromLocalStorage();
+  
   if (supabase) {
     const { calculations, error } = await getFromSupabase();
-    if (!error) {
+    
+    if (!error && calculations.length > 0) {
       console.log("✅ [FavoritesService] Cálculos carregados do Supabase:", calculations.length);
-      return calculations;
+      // Mesclar com dados locais se houver (removendo duplicados por ID)
+      const supabaseIds = new Set(calculations.map(c => c.id));
+      const uniqueLocalData = localData.filter(c => !supabaseIds.has(c.id));
+      return [...calculations, ...uniqueLocalData];
     }
-    // Se houver erro de tabela não encontrada, tentar localStorage
-    if (error && isTableNotFoundError(error)) {
-      console.warn("⚠️ [FavoritesService] Tabela não encontrada, usando localStorage");
-      return await getFromLocalStorage();
-    }
-    // Se houver outro erro, tentar localStorage como fallback
-    console.warn("⚠️ [FavoritesService] Erro ao buscar do Supabase, tentando localStorage:", error);
-    const localData = await getFromLocalStorage();
-    if (localData.length > 0) {
-      console.log("✅ [FavoritesService] Cálculos carregados do localStorage:", localData.length);
-      return localData;
+    
+    if (error) {
+      console.warn("⚠️ [FavoritesService] Erro ao buscar do Supabase:", error.message);
     }
   }
 
-  // Fallback para localStorage
-  const localData = await getFromLocalStorage();
+  // Usar localStorage
   console.log("✅ [FavoritesService] Cálculos carregados do localStorage:", localData.length);
   return localData;
 }
@@ -348,19 +346,26 @@ async function deleteFromLocalStorage(id: string): Promise<{ error: Error | null
  * Remover cálculo (tenta Supabase primeiro, fallback localStorage)
  */
 export async function deleteCalculation(id: string): Promise<{ error: Error | null }> {
+  let supabaseSuccess = false;
+  
   if (supabase) {
     const result = await deleteFromSupabase(id);
     if (!result.error) {
-      return result;
-    }
-    // Se falhar mas não for erro crítico, retornar erro
-    if (!result.error.message.includes("Tabela")) {
-      return result;
+      supabaseSuccess = true;
+    } else {
+      console.warn("⚠️ [FavoritesService] Erro ao deletar do Supabase:", result.error.message);
     }
   }
 
-  // Fallback para localStorage
-  return await deleteFromLocalStorage(id);
+  // Sempre tentar deletar do localStorage também (pode ter cópias em ambos)
+  const localResult = await deleteFromLocalStorage(id);
+  
+  // Se pelo menos um teve sucesso, retornar sem erro
+  if (supabaseSuccess || !localResult.error) {
+    return { error: null };
+  }
+  
+  return localResult;
 }
 
 /**
