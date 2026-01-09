@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Calculator, RotateCcw, AlertCircle, CheckCircle2, Plus, Trash2, Package, History, Save, Plane } from "lucide-react";
+import { Calculator, RotateCcw, AlertCircle, CheckCircle2, Plus, Trash2, Package, History, Save, ChevronRight, FlaskConical, Droplets, Info, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,8 +14,9 @@ import { saveCalculation } from "@/lib/favoritesService";
 import { useToast } from "@/hooks/use-toast";
 import { SelectCustomProductModal } from "@/components/calc/SelectCustomProductModal";
 import { AddProductModal } from "@/components/catalog/AddProductModal";
-import { addCustomProduct, getCustomProducts } from "@/lib/productCatalogService";
+import { addCustomProduct } from "@/lib/productCatalogService";
 import { useAuth } from "@/contexts/AuthContext";
+import { cn } from "@/lib/utils";
 import type { ProductCategory, ProductUnit as CatalogProductUnit } from "@/types/product";
 
 interface LocationState {
@@ -31,10 +32,10 @@ interface ProdutoNoCalculo {
 }
 
 const coresPorTipo: Record<string, string> = {
-  Herbicida: "bg-orange-500/10 text-orange-500 border-orange-500/20",
-  Inseticida: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-  Fungicida: "bg-purple-500/10 text-purple-500 border-purple-500/20",
-  Fertilizante: "bg-green-500/10 text-green-500 border-green-500/20",
+  Herbicida: "bg-orange-100 text-orange-600 border-orange-200",
+  Inseticida: "bg-blue-100 text-blue-600 border-blue-200",
+  Fungicida: "bg-purple-100 text-purple-600 border-purple-200",
+  Fertilizante: "bg-emerald-100 text-emerald-600 border-emerald-200",
 };
 
 export default function Calc() {
@@ -75,10 +76,6 @@ export default function Calc() {
     setDialogAberto(false);
   };
 
-  const adicionarProdutoManual = () => {
-    setCustomProductModalOpen(true);
-  };
-
   const handleSelectCustomProduct = (product: { nome: string; dose: number; unidade: ProductUnit }) => {
     const novoProduto: ProdutoNoCalculo = {
       id: Date.now().toString(),
@@ -88,10 +85,6 @@ export default function Calc() {
     };
     setProdutos([...produtos, novoProduto]);
     toast({ title: "Produto adicionado", description: `${product.nome} foi adicionado ao cálculo.` });
-  };
-
-  const handleAddNewProduct = () => {
-    setAddProductModalOpen(true);
   };
 
   const handleSaveNewProduct = async (productData: {
@@ -174,6 +167,7 @@ export default function Calc() {
 
     if (calculation.result) {
       setResult(calculation.result);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       setError(calculation.errors?.messages[0] || "Erro ao calcular.");
     }
@@ -186,12 +180,6 @@ export default function Calc() {
     setProdutos([]);
     setResult(null);
     setError(null);
-  };
-
-  const gerarTextoFinal = (): string => {
-    if (!result) return "";
-    const linhasProdutos = result.produtos.map((p) => `- Coloque ${p.produtoPorTanque} ${p.unit} de ${p.nome}`);
-    return `Para cada tanque do drone:\n${linhasProdutos.join("\n")}\n- Adicione ${result.aguaPorTanqueL} L de água\n- Total: ${volumeTanque} litros de calda por tanque.`;
   };
 
   const handleSaveCalculation = async () => {
@@ -212,243 +200,310 @@ export default function Calc() {
       products: produtosParaCalculo,
     };
 
-    console.log("💾 [Calc] Salvando cálculo...", { input, result });
     const { id, error } = await saveCalculation(input, result);
-    console.log("💾 [Calc] Resultado do salvamento:", { id, error });
     setIsSaving(false);
 
     if (error) {
-      console.error("❌ [Calc] Erro ao salvar:", error);
       toast({ title: "Erro", description: error.message || "Erro ao salvar cálculo.", variant: "destructive" });
     } else {
-      console.log("✅ [Calc] Cálculo salvo com sucesso, ID:", id);
       window.dispatchEvent(new CustomEvent("calculationSaved"));
-      toast({ title: "Cálculo salvo com sucesso", description: "Acesse o Histórico para visualizar." });
+      toast({ title: "Cálculo salvo", description: "Acesse o Histórico para visualizar." });
     }
   };
 
   return (
-    <div className="pt-4 pb-24">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-          <Calculator size={20} className="text-primary-foreground" />
-        </div>
-        <div>
-          <h1 className="text-[20px] font-bold text-foreground">Calculadora de Calda</h1>
-          <p className="text-[12px] text-muted-foreground">Simples e direto para o campo</p>
-        </div>
-      </div>
-
-      <div className="space-y-4 mb-6">
-        <div>
-          <Label htmlFor="area" className="text-[13px] font-medium text-foreground mb-2 block">Área (hectares)</Label>
-          <Input id="area" type="number" step="0.01" placeholder="Ex: 10" value={areaHa} onChange={(e) => setAreaHa(e.target.value)} className="h-12 rounded-2xl bg-card border-border text-[14px]" />
-        </div>
-        <div>
-          <Label htmlFor="taxa" className="text-[13px] font-medium text-foreground mb-2 block">Litros por hectare (L/ha)</Label>
-          <Input id="taxa" type="number" step="0.1" placeholder="Ex: 10" value={litrosPorHa} onChange={(e) => setLitrosPorHa(e.target.value)} className="h-12 rounded-2xl bg-card border-border text-[14px]" />
-        </div>
-        <div>
-          <Label htmlFor="tanque" className="text-[13px] font-medium text-foreground mb-2 block">Volume do tanque (L)</Label>
-          <Input id="tanque" type="number" step="0.1" placeholder="Ex: 10" value={volumeTanque} onChange={(e) => setVolumeTanque(e.target.value)} className="h-12 rounded-2xl bg-card border-border text-[14px]" />
-        </div>
-      </div>
-
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
+    <div className="space-y-6 pb-32 animate-fade-in bg-[#fdfdfd]">
+      {/* Header */}
+      <div className="flex items-center justify-between pt-4 px-1">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center border border-emerald-100 shadow-sm">
+            <Calculator size={24} className="text-emerald-600" />
+          </div>
           <div>
-            <Label className="text-[13px] font-medium text-foreground">Produtos ({produtos.length})</Label>
-            <p className="text-[10px] text-muted-foreground">Adicione 1 ou mais produtos</p>
-          </div>
-          <div className="flex gap-2">
-            <Button onClick={() => setDialogAberto(true)} variant="outline" size="sm" className="h-9 text-[12px]">
-              <Package size={14} className="mr-1" /> Catálogo
-            </Button>
-            <Button onClick={adicionarProdutoManual} variant="outline" size="sm" className="h-9 text-[12px]">
-              <Plus size={14} className="mr-1" /> Manual
-            </Button>
+            <h1 className="text-[24px] font-bold text-[#1a1a1a]">Calculadora</h1>
+            <p className="text-[13px] text-[#8a8a8a] font-medium uppercase tracking-wider">Mistura de Calda</p>
           </div>
         </div>
+        <button onClick={handleClear} className="w-10 h-10 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center active:scale-90 transition-all">
+          <RotateCcw size={18} className="text-[#8a8a8a]" />
+        </button>
+      </div>
 
-        <div className="space-y-3">
-          {produtos.map((produto) => (
-            <Card key={produto.id} className="p-4 bg-card border-border">
-              <div className="flex items-start justify-between gap-2 mb-3">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Input value={produto.nome} onChange={(e) => atualizarProduto(produto.id, "nome", e.target.value)} placeholder="Nome do produto" className="h-8 text-[13px] font-medium bg-transparent border-0 p-0 focus-visible:ring-0" />
-                    {produto.produtoOriginal && (
-                      <Badge variant="outline" className={`text-[9px] px-1.5 py-0 ${coresPorTipo[produto.produtoOriginal.tipo] || ""}`}>{produto.produtoOriginal.tipo}</Badge>
-                    )}
-                  </div>
-                  <div className="flex gap-2">
-                    <div className="flex-1">
-                      <Label className="text-[11px] text-muted-foreground mb-1 block">Dose por hectare</Label>
-                      <Input type="number" step="0.01" placeholder="Ex: 200" value={produto.dose || ""} onChange={(e) => atualizarProduto(produto.id, "dose", parseFloat(e.target.value) || 0)} className="h-9 rounded-xl bg-muted border-transparent text-[13px]" />
-                    </div>
-                    <div className="w-20">
-                      <Label className="text-[11px] text-muted-foreground mb-1 block">Unidade</Label>
-                      <Select value={produto.unidade} onValueChange={(value: ProductUnit) => atualizarProduto(produto.id, "unidade", value)}>
-                        <SelectTrigger className="h-9 rounded-xl bg-muted border-transparent text-[13px]"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="mL">mL</SelectItem>
-                          <SelectItem value="L">L</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+      {!result ? (
+        <div className="space-y-6">
+          {/* Main Inputs Card */}
+          <Card className="p-6 rounded-[32px] border-none shadow-sm bg-white space-y-5">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center">
+                <Plane size={16} className="text-emerald-600" />
+              </div>
+              <span className="text-[15px] font-bold text-[#1a1a1a]">Dados da Área</span>
+            </div>
+
+            <div className="space-y-4">
+              <div className="relative">
+                <Label htmlFor="area" className="text-[13px] font-bold text-[#1a1a1a] mb-2 block ml-1">Área total (ha)</Label>
+                <div className="relative">
+                  <Input id="area" type="number" step="0.01" placeholder="Ex: 10.0" value={areaHa} onChange={(e) => setAreaHa(e.target.value)} className="h-[56px] px-5 rounded-[20px] bg-[#f8f9fb] border-none text-[16px] font-semibold text-[#1a1a1a] placeholder:text-[#b4b4b4] focus:ring-2 focus:ring-primary/20" />
+                  <span className="absolute right-5 top-1/2 -translate-y-1/2 text-[14px] font-bold text-[#8a8a8a]">ha</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="relative">
+                  <Label htmlFor="taxa" className="text-[13px] font-bold text-[#1a1a1a] mb-2 block ml-1">Taxa (L/ha)</Label>
+                  <div className="relative">
+                    <Input id="taxa" type="number" step="0.1" placeholder="Ex: 10" value={litrosPorHa} onChange={(e) => setLitrosPorHa(e.target.value)} className="h-[56px] px-5 rounded-[20px] bg-[#f8f9fb] border-none text-[16px] font-semibold text-[#1a1a1a] placeholder:text-[#b4b4b4] focus:ring-2 focus:ring-primary/20" />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[12px] font-bold text-[#8a8a8a]">L/ha</span>
                   </div>
                 </div>
-                <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0" onClick={() => removerProduto(produto.id)}>
-                  <Trash2 size={14} className="text-destructive" />
-                </Button>
+                <div className="relative">
+                  <Label htmlFor="tanque" className="text-[13px] font-bold text-[#1a1a1a] mb-2 block ml-1">Tanque (L)</Label>
+                  <div className="relative">
+                    <Input id="tanque" type="number" step="0.1" placeholder="Ex: 10" value={volumeTanque} onChange={(e) => setVolumeTanque(e.target.value)} className="h-[56px] px-5 rounded-[20px] bg-[#f8f9fb] border-none text-[16px] font-semibold text-[#1a1a1a] placeholder:text-[#b4b4b4] focus:ring-2 focus:ring-primary/20" />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[12px] font-bold text-[#8a8a8a]">L</span>
+                  </div>
+                </div>
               </div>
-            </Card>
-          ))}
-
-          {produtos.length === 0 && (
-            <div className="text-center py-8 border-2 border-dashed border-border rounded-2xl">
-              <Package size={32} className="mx-auto text-muted-foreground mb-2" />
-              <p className="text-[12px] text-muted-foreground">Nenhum produto adicionado. Adicione produtos do catálogo ou manualmente.</p>
             </div>
-          )}
+          </Card>
 
-          {/* Botão para adicionar mais produtos */}
-          {produtos.length > 0 && (
-            <div className="flex flex-col gap-2 pt-3">
-              <p className="text-[11px] text-muted-foreground text-center">Adicione quantos produtos quiser ao cálculo</p>
+          {/* Products Section */}
+          <div className="px-1 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <h2 className="text-[18px] font-bold text-[#1a1a1a]">Produtos</h2>
+                <Badge variant="secondary" className="bg-[#f2f4f7] text-[#8a8a8a] rounded-lg px-2 h-6">{produtos.length}</Badge>
+              </div>
               <div className="flex gap-2">
-                <Button 
-                  onClick={() => setDialogAberto(true)} 
-                  variant="outline" 
-                  size="sm" 
-                  className="flex-1 h-10 text-[12px] border-dashed border-primary/30 text-primary hover:bg-primary/5"
-                >
-                  <Plus size={14} className="mr-1.5" /> Do catálogo
+                <Button onClick={() => setDialogAberto(true)} variant="outline" size="sm" className="rounded-full h-9 bg-white text-[12px] font-bold border-gray-100 shadow-sm px-4">
+                  <Plus size={14} className="mr-1.5" /> Catálogo
                 </Button>
-                <Button 
-                  onClick={adicionarProdutoManual} 
-                  variant="outline" 
-                  size="sm" 
-                  className="flex-1 h-10 text-[12px] border-dashed border-primary/30 text-primary hover:bg-primary/5"
-                >
+                <Button onClick={() => setCustomProductModalOpen(true)} variant="outline" size="sm" className="rounded-full h-9 bg-white text-[12px] font-bold border-gray-100 shadow-sm px-4">
                   <Plus size={14} className="mr-1.5" /> Manual
                 </Button>
               </div>
             </div>
-          )}
-        </div>
-      </div>
 
-      <Dialog open={dialogAberto} onOpenChange={setDialogAberto}>
-        <DialogContent className="max-w-md max-h-[85vh] flex flex-col p-0">
-          <DialogHeader className="px-6 pt-6 pb-4">
-            <DialogTitle>Selecionar Produto do Catálogo</DialogTitle>
-            <DialogDescription>Escolha um produto para adicionar ao cálculo.</DialogDescription>
-          </DialogHeader>
-          <div className="flex-1 overflow-y-auto px-6 pb-6">
-            <div className="space-y-2">
-              {produtosAgricolas.map((produto) => (
-                <Card key={produto.id} className="p-3 cursor-pointer hover:bg-accent active:bg-accent/80 transition-colors" onClick={() => adicionarProdutoDoCatalogo(produto)}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <p className="text-[14px] font-semibold">{produto.nome}</p>
-                        <Badge variant="outline" className={`text-[10px] px-2 py-0 ${coresPorTipo[produto.tipo] || ""}`}>{produto.tipo}</Badge>
+            <div className="space-y-3">
+              {produtos.map((produto) => (
+                <div key={produto.id} className="bg-white rounded-[24px] p-4 shadow-sm border border-gray-50 relative group animate-in slide-in-from-bottom-2 duration-300">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0", produto.produtoOriginal ? coresPorTipo[produto.produtoOriginal.tipo] : "bg-gray-100")}>
+                          <Package size={16} />
+                        </div>
+                        <input 
+                          value={produto.nome} 
+                          onChange={(e) => atualizarProduto(produto.id, "nome", e.target.value)} 
+                          placeholder="Nome do produto" 
+                          className="flex-1 bg-transparent border-none p-0 focus:ring-0 text-[15px] font-bold text-[#1a1a1a] placeholder:text-[#b4b4b4]" 
+                        />
                       </div>
-                      <p className="text-[12px] text-muted-foreground">Dose: {produto.dosePadrao} {produto.unidade}/ha</p>
+                      
+                      <div className="flex gap-3">
+                        <div className="flex-1 relative">
+                          <Input 
+                            type="number" 
+                            step="0.01" 
+                            placeholder="Dose" 
+                            value={produto.dose || ""} 
+                            onChange={(e) => atualizarProduto(produto.id, "dose", parseFloat(e.target.value) || 0)} 
+                            className="h-11 px-4 rounded-xl bg-[#f8f9fb] border-none text-[14px] font-bold text-[#1a1a1a]" 
+                          />
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-bold text-[#8a8a8a] uppercase">{produto.unidade}/ha</span>
+                        </div>
+                        <div className="w-24">
+                          <Select value={produto.unidade} onValueChange={(value: ProductUnit) => atualizarProduto(produto.id, "unidade", value)}>
+                            <SelectTrigger className="h-11 rounded-xl bg-[#f8f9fb] border-none text-[13px] font-bold"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="mL">mL</SelectItem>
+                              <SelectItem value="L">L</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
                     </div>
-                    <Plus size={18} className="text-primary flex-shrink-0 ml-2" />
+                    <button onClick={() => removerProduto(produto.id)} className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center text-red-500 active:scale-90 transition-all">
+                      <Trash2 size={14} />
+                    </button>
                   </div>
-                </Card>
+                </div>
+              ))}
+
+              {produtos.length === 0 && (
+                <div className="text-center py-12 bg-[#f2f4f7]/50 border-2 border-dashed border-gray-200 rounded-[32px]">
+                  <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm">
+                    <FlaskConical size={24} className="text-[#8a8a8a]" />
+                  </div>
+                  <p className="text-[14px] font-bold text-[#1a1a1a]">Nenhum produto</p>
+                  <p className="text-[12px] text-[#8a8a8a] mt-1">Adicione os produtos da mistura acima</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {error && (
+            <div className="mx-1 p-4 bg-red-50 border border-red-100 rounded-[24px] flex items-start gap-3">
+              <AlertCircle size={18} className="text-red-500 mt-0.5 flex-shrink-0" />
+              <p className="text-[13px] text-red-600 font-medium leading-relaxed">{error}</p>
+            </div>
+          )}
+
+          <div className="fixed bottom-[88px] left-0 right-0 px-6 z-40">
+            <Button 
+              onClick={handleCalculate} 
+              className="w-full h-14 bg-[#1a1a1a] text-white text-[16px] font-bold rounded-[20px] shadow-xl active:scale-95 transition-all hover:bg-black uppercase tracking-wider"
+            >
+              Realizar Cálculo
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-6 animate-in zoom-in-95 duration-500">
+          {/* RESULTS REDESIGN */}
+          <div className="px-1 space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-[22px] font-bold text-[#1a1a1a]">Resultado Final</h2>
+              <div className="flex gap-2">
+                <button onClick={handleSaveCalculation} disabled={isSaving} className="w-10 h-10 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center active:scale-90 transition-all">
+                  <Save size={18} className="text-emerald-600" />
+                </button>
+                <button onClick={handleClear} className="w-10 h-10 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center active:scale-90 transition-all">
+                  <RotateCcw size={18} className="text-[#8a8a8a]" />
+                </button>
+              </div>
+            </div>
+
+            {/* Summary Measurement Cards */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-[#f0f9ff] rounded-[32px] p-6 shadow-sm border border-blue-50 flex flex-col justify-between h-[160px]">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                    <Droplets size={16} className="text-blue-600" />
+                  </div>
+                  <span className="text-[13px] font-bold text-[#1a1a1a] uppercase tracking-wider">Volume Total</span>
+                </div>
+                <div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-[32px] font-black text-[#1a1a1a]">{result.volumeTotalL}</span>
+                    <span className="text-[14px] font-bold text-[#8a8a8a]">L</span>
+                  </div>
+                  <p className="text-[11px] text-[#8a8a8a] mt-1 font-medium">{areaHa}ha × {litrosPorHa}L/ha</p>
+                </div>
+              </div>
+
+              <div className="bg-[#f0fff4] rounded-[32px] p-6 shadow-sm border border-emerald-50 flex flex-col justify-between h-[160px]">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
+                    <Calculator size={16} className="text-emerald-600" />
+                  </div>
+                  <span className="text-[13px] font-bold text-[#1a1a1a] uppercase tracking-wider">Tanques</span>
+                </div>
+                <div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-[32px] font-black text-[#1a1a1a]">{result.numeroTanques}</span>
+                    <span className="text-[14px] font-bold text-[#8a8a8a]">{result.numeroTanques === 1 ? 'Voo' : 'Voos'}</span>
+                  </div>
+                  <p className="text-[11px] text-[#8a8a8a] mt-1 font-medium">{result.volumeTotalL}L ÷ {volumeTanque}L</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Step by Step Breakdown */}
+            <div className="space-y-4">
+              <h3 className="text-[16px] font-bold text-[#1a1a1a] uppercase tracking-wider ml-1">Mistura por Tanque</h3>
+              
+              {result.produtos.map((produto, idx) => (
+                <div key={idx} className="bg-white rounded-[28px] p-5 shadow-sm border border-gray-50 flex items-center justify-between group">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-[#f8f9fb] flex items-center justify-center group-hover:bg-emerald-50 transition-colors">
+                      <FlaskConical size={20} className="text-[#8a8a8a] group-hover:text-emerald-600" />
+                    </div>
+                    <div>
+                      <p className="text-[15px] font-bold text-[#1a1a1a] leading-tight mb-1">{produto.nome}</p>
+                      <p className="text-[12px] text-[#8a8a8a] font-medium uppercase tracking-tighter">Produto no Tanque</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="flex items-baseline justify-end gap-1">
+                      <span className="text-[22px] font-black text-emerald-600">{produto.produtoPorTanque}</span>
+                      <span className="text-[12px] font-bold text-emerald-600/60 uppercase">{produto.unit}</span>
+                    </div>
+                    <p className="text-[10px] text-[#b4b4b4] font-bold mt-0.5">TOTAL: {produto.totalProduto}{produto.unit}</p>
+                  </div>
+                </div>
+              ))}
+
+              <div className="bg-[#f0f9ff]/50 rounded-[28px] p-5 border border-blue-100 flex items-center justify-between group">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center">
+                    <Droplets size={20} className="text-blue-500" />
+                  </div>
+                  <div>
+                    <p className="text-[15px] font-bold text-[#1a1a1a] leading-tight mb-1">Água</p>
+                    <p className="text-[12px] text-[#8a8a8a] font-medium uppercase tracking-tighter">Adicionar ao Tanque</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="flex items-baseline justify-end gap-1">
+                    <span className="text-[22px] font-black text-blue-600">{result.aguaPorTanqueL}</span>
+                    <span className="text-[12px] font-bold text-blue-600/60 uppercase">L</span>
+                  </div>
+                  <p className="text-[10px] text-blue-400/60 font-bold mt-0.5 whitespace-nowrap">PARA COMPLETAR {volumeTanque}L</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Save/Action Buttons at bottom */}
+            <div className="space-y-3 pt-4">
+              <Button onClick={handleSaveCalculation} disabled={isSaving} className="w-full h-14 bg-emerald-600 text-white text-[16px] font-bold rounded-[20px] shadow-lg active:scale-95 transition-all hover:bg-emerald-700 uppercase tracking-wider">
+                {isSaving ? "Salvando..." : "Salvar no Histórico"}
+              </Button>
+              <div className="grid grid-cols-2 gap-3">
+                <Button onClick={() => navigate("/app/favoritos")} variant="outline" className="h-14 rounded-[20px] text-[#1a1a1a] font-bold border-gray-200">
+                  <History size={18} className="mr-2" /> Histórico
+                </Button>
+                <Button onClick={handleClear} variant="outline" className="h-14 rounded-[20px] text-[#1a1a1a] font-bold border-gray-200">
+                  <Plus size={18} className="mr-2" /> Novo
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Catalog Dialog */}
+      <Dialog open={dialogAberto} onOpenChange={setDialogAberto}>
+        <DialogContent className="max-w-md max-h-[85vh] flex flex-col p-0 rounded-[32px] border-none overflow-hidden">
+          <DialogHeader className="px-6 pt-8 pb-4 bg-white">
+            <DialogTitle className="text-[22px] font-bold text-[#1a1a1a]">Catálogo</DialogTitle>
+            <DialogDescription className="text-[14px] text-[#8a8a8a] font-medium">Selecione um produto para o cálculo.</DialogDescription>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto px-6 pb-8 bg-white">
+            <div className="space-y-3 mt-2">
+              {produtosAgricolas.map((produto) => (
+                <div key={produto.id} className="p-4 bg-[#f8f9fb] rounded-2xl cursor-pointer active:scale-95 transition-all flex items-center justify-between" onClick={() => adicionarProdutoDoCatalogo(produto)}>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <p className="text-[15px] font-bold text-[#1a1a1a]">{produto.nome}</p>
+                      <Badge variant="outline" className={cn("text-[10px] font-bold px-2 py-0 h-5 uppercase tracking-tighter border-none", coresPorTipo[produto.tipo])}>{produto.tipo}</Badge>
+                    </div>
+                    <p className="text-[12px] text-[#8a8a8a] font-medium">Dose: {produto.dosePadrao} {produto.unidade}/ha</p>
+                  </div>
+                  <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm">
+                    <Plus size={16} className="text-emerald-600" />
+                  </div>
+                </div>
               ))}
             </div>
           </div>
         </DialogContent>
       </Dialog>
 
-      <SelectCustomProductModal open={customProductModalOpen} onClose={() => setCustomProductModalOpen(false)} onSelectProduct={handleSelectCustomProduct} onAddNew={handleAddNewProduct} />
+      <SelectCustomProductModal open={customProductModalOpen} onClose={() => setCustomProductModalOpen(false)} onSelectProduct={handleSelectCustomProduct} onAddNew={() => setAddProductModalOpen(true)} />
       {user && <AddProductModal open={addProductModalOpen} onClose={() => setAddProductModalOpen(false)} onSubmit={handleSaveNewProduct} />}
-
-      {error && (
-        <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-2xl">
-          <div className="flex items-start gap-2">
-            <AlertCircle size={18} className="text-destructive mt-0.5" />
-            <p className="text-[13px] text-destructive flex-1">{error}</p>
-          </div>
-        </div>
-      )}
-
-      <div className="space-y-3 mb-6">
-        <Button onClick={handleCalculate} className="w-full h-12 bg-primary text-primary-foreground text-[14px] font-semibold rounded-full">Calcular</Button>
-        {result && (
-          <>
-            <Button onClick={handleSaveCalculation} disabled={isSaving} className="w-full h-12 bg-green-500 text-white text-[14px] font-semibold rounded-full hover:bg-green-600">
-              {isSaving ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />Salvando...</> : <><Save size={16} className="mr-2" />Salvar cálculo</>}
-            </Button>
-            <Button onClick={() => navigate("/app/favoritos")} variant="outline" className="w-full h-12 text-[14px] font-semibold rounded-full border-green-500/20 hover:bg-green-500/10">
-              <History size={16} className="mr-2 text-green-500" />Ver histórico
-            </Button>
-            <Button onClick={handleClear} variant="outline" className="w-full h-12 text-[14px] font-semibold rounded-full">
-              <RotateCcw size={16} className="mr-2" />Novo cálculo
-            </Button>
-          </>
-        )}
-      </div>
-
-      {result && (
-        <Card className="p-5 bg-black text-white mb-6">
-          <div className="flex items-center gap-2 mb-4">
-            <CheckCircle2 size={20} className="text-green-500" />
-            <h3 className="text-[18px] font-bold text-white">Resultado</h3>
-          </div>
-          <div className="space-y-4">
-            <div className="bg-white/5 rounded-xl p-4">
-              <p className="text-[11px] uppercase tracking-wide text-white/70 mb-1">PASSO 1 — Volume total de calda</p>
-              <p className="text-[24px] font-bold text-white">{result.volumeTotalL} L</p>
-              <p className="text-[11px] text-white/70 mt-1">{areaHa} ha × {litrosPorHa} L/ha = {result.volumeTotalL} L</p>
-            </div>
-            <div className="bg-white/5 rounded-xl p-4">
-              <p className="text-[11px] uppercase tracking-wide text-white/70 mb-1">PASSO 2 — Número de tanques</p>
-              <p className="text-[24px] font-bold text-white">{result.numeroTanques} tanques</p>
-              <p className="text-[11px] text-white/70 mt-1">{result.volumeTotalL} L ÷ {volumeTanque} L = {result.numeroTanques} tanques</p>
-            </div>
-            {result.produtos.map((produto, idx) => (
-              <div key={idx} className="bg-white/5 rounded-xl p-4">
-                <p className="text-[13px] font-semibold mb-3 text-white">{produto.nome}</p>
-                <div className="space-y-3">
-                  <div>
-                    <p className="text-[11px] uppercase tracking-wide text-white/70 mb-1">PASSO 3 — Produto total no trabalho</p>
-                    <p className="text-[20px] font-bold text-white">{produto.totalProduto} {produto.unit}</p>
-                    <p className="text-[11px] text-white/70 mt-1">{areaHa} ha × {produto.doseHa} {produto.unit}/ha = {produto.totalProduto} {produto.unit}</p>
-                  </div>
-                  <div className="pt-3 border-t border-white/20">
-                    <p className="text-[11px] uppercase tracking-wide text-white/70 mb-1">PASSO 4 — Produto por tanque</p>
-                    <p className="text-[24px] font-bold text-green-500">{produto.produtoPorTanque} {produto.unit}</p>
-                    <p className="text-[11px] text-white/70 mt-1">{produto.totalProduto} {produto.unit} ÷ {result.numeroTanques} tanques</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-            
-            {/* PASSO 5 — Água por tanque */}
-            <div className="bg-blue-500/10 rounded-xl p-4 border border-blue-500/30">
-              <p className="text-[11px] uppercase tracking-wide text-blue-400 mb-1">PASSO 5 — Água por tanque</p>
-              <p className="text-[24px] font-bold text-blue-400">{result.aguaPorTanqueL} L</p>
-              <p className="text-[11px] text-white/70 mt-1">
-                {volumeTanque} L (tanque) - {result.totalProdutosPorTanqueL} L (produtos) = {result.aguaPorTanqueL} L de água
-              </p>
-              <p className="text-[10px] text-white/50 mt-2 italic">
-                💧 Adicione esta quantidade de água para completar cada tanque
-              </p>
-            </div>
-            
-            <div className="bg-white/10 rounded-xl p-4 mt-4 border-2 border-green-500/30">
-              <p className="text-[14px] font-bold mb-3 text-white">RESULTADO FINAL</p>
-              <p className="text-[13px] leading-relaxed whitespace-pre-line text-white">{gerarTextoFinal()}</p>
-            </div>
-          </div>
-        </Card>
-      )}
     </div>
   );
 }
