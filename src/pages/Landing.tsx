@@ -10,141 +10,140 @@ const features = [
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-[#f5f5f5] flex items-center justify-center p-4">
-      {/* Mobile Phone Container */}
-      <div className="w-full max-w-[390px] min-h-[844px] bg-white rounded-[40px] shadow-2xl overflow-hidden relative">
-        {/* Status Bar */}
-        <div className="h-12 bg-white flex items-center justify-center">
+    <div className="min-h-screen-safe bg-white flex flex-col">
+      <div className="w-full flex-1 flex flex-col relative overflow-x-hidden md:max-w-[430px] md:mx-auto md:shadow-2xl md:my-8 md:rounded-[40px] md:border md:border-border">
+        {/* Status Bar Spacer (Desktop Only) */}
+        <div className="hidden md:flex h-12 bg-white items-center justify-center">
           <div className="w-[120px] h-[34px] bg-black rounded-full" />
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 px-5 pb-28 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+        <div className="flex-1 px-5 pb-32 pt-8 overflow-y-auto w-full">
           {/* Header */}
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-8 px-1">
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-2xl bg-[#1a1a1a] flex items-center justify-center">
+              <div className="w-10 h-10 rounded-2xl bg-[#1a1a1a] flex items-center justify-center shadow-sm">
                 <span className="text-white font-bold text-lg">C</span>
               </div>
-              <span className="font-bold text-xl text-[#1a1a1a]">Calc</span>
+              <span className="font-bold text-2xl text-[#1a1a1a] tracking-tight">Calc</span>
             </div>
             <Link 
               to="/auth/login"
-              className="px-5 py-2.5 bg-[#1a1a1a] text-white text-[14px] font-medium rounded-full"
+              className="px-6 py-2.5 bg-[#1a1a1a] text-white text-[14px] font-bold rounded-full active:scale-95 transition-all shadow-md"
             >
               Entrar
             </Link>
           </div>
 
           {/* Hero */}
-          <div className="mb-6">
-            <h1 className="text-[28px] font-bold text-[#1a1a1a] leading-tight mb-3">
+          <div className="mb-8 px-1">
+            <h1 className="text-[32px] font-black text-[#1a1a1a] leading-[1.1] mb-4">
               Gerencie seu negócio de forma simples
             </h1>
-            <p className="text-[14px] text-[#8a8a8a] leading-relaxed">
-              Automatize processos e cresça mais rápido.
+            <p className="text-[16px] text-[#8a8a8a] leading-relaxed font-medium">
+              Automatize processos e cresça mais rápido com a melhor ferramenta para o seu campo.
             </p>
           </div>
 
           {/* Features Grid */}
-          <div className="grid grid-cols-2 gap-3 mb-6">
+          <div className="grid grid-cols-2 gap-4 mb-8">
             {features.map((feature) => (
               <div 
                 key={feature.title}
-                className="bg-[#f5f5f5] rounded-2xl p-4 flex flex-col items-start"
+                className="bg-[#f8f9fb] rounded-[24px] p-5 flex flex-col items-start shadow-sm border border-gray-50"
               >
-                <div className="w-10 h-10 rounded-xl bg-[#1a1a1a] flex items-center justify-center mb-2">
-                  <feature.icon size={18} className="text-white" />
+                <div className="w-11 h-11 rounded-xl bg-[#1a1a1a] flex items-center justify-center mb-3 shadow-md">
+                  <feature.icon size={20} className="text-white" />
                 </div>
-                <span className="text-[13px] font-semibold text-[#1a1a1a]">{feature.title}</span>
+                <span className="text-[14px] font-bold text-[#1a1a1a]">{feature.title}</span>
               </div>
             ))}
           </div>
 
           {/* Hero Card Preview */}
-          <div className="relative rounded-[24px] overflow-hidden shadow-xl mb-5">
-            <div className="relative h-[200px]">
+          <div className="relative rounded-[32px] overflow-hidden shadow-xl mb-8 group">
+            <div className="relative h-[220px]">
               <img
                 src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80"
                 alt="Dashboard"
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
               
-              <button className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center">
-                <Heart size={16} className="text-[#1a1a1a]" />
+              <button className="absolute top-5 right-5 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-md active:scale-90 transition-all">
+                <Heart size={18} className="text-[#1a1a1a]" />
               </button>
 
-              <div className="absolute bottom-0 left-0 right-0 p-4">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/20 backdrop-blur-sm text-white text-[11px] font-medium rounded-full mb-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+              <div className="absolute bottom-0 left-0 right-0 p-6">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/20 backdrop-blur-md text-white text-[12px] font-bold rounded-full mb-3 border border-white/10">
+                  <span className="w-2 h-2 rounded-full bg-primary" />
                   Dashboard
                 </span>
-                <h3 className="text-[20px] font-bold text-white mb-1">
+                <h3 className="text-[24px] font-bold text-white mb-1.5">
                   Visão Geral
                 </h3>
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1 px-2 py-0.5 bg-white/20 backdrop-blur-sm rounded-full">
-                    <Star size={10} className="text-yellow-400 fill-yellow-400" />
-                    <span className="text-[10px] font-semibold text-white">5.0</span>
+                  <div className="flex items-center gap-1 px-2.5 py-0.5 bg-white/20 backdrop-blur-sm rounded-full border border-white/10">
+                    <Star size={12} className="text-yellow-400 fill-yellow-400" />
+                    <span className="text-[12px] font-bold text-white">5.0</span>
                   </div>
-                  <span className="text-[10px] text-white/80">5.000+ empresas</span>
+                  <span className="text-[12px] text-white/80 font-medium">5.000+ empresas</span>
                 </div>
               </div>
             </div>
 
-            <div className="bg-[#1a1a1a] px-4 py-3 flex items-center justify-between">
-              <span className="text-white text-[13px] font-medium">Começar grátis</span>
-              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
-                <ArrowRight size={14} className="text-[#1a1a1a]" />
+            <Link to="/auth/register" className="bg-[#1a1a1a] px-6 py-4 flex items-center justify-between hover:bg-black transition-colors">
+              <span className="text-white text-[15px] font-bold uppercase tracking-wider">Começar grátis</span>
+              <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center">
+                <ArrowRight size={16} className="text-[#1a1a1a]" />
               </div>
-            </div>
+            </Link>
           </div>
 
           {/* Benefits */}
-          <div className="flex flex-wrap gap-3 mb-6">
+          <div className="flex flex-wrap gap-4 mb-8 px-1">
             {["Sem cartão", "14 dias grátis", "Cancele quando quiser"].map((text) => (
-              <div key={text} className="flex items-center gap-1.5">
+              <div key={text} className="flex items-center gap-2 bg-[#f0fff4] px-3 py-1.5 rounded-full border border-emerald-50">
                 <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center">
                   <Check size={10} className="text-primary" />
                 </div>
-                <span className="text-[12px] text-[#8a8a8a]">{text}</span>
+                <span className="text-[12px] text-emerald-700 font-bold">{text}</span>
               </div>
             ))}
           </div>
 
           {/* CTA Buttons */}
-          <div className="space-y-3">
+          <div className="space-y-4 px-1">
             <Link 
               to="/auth/register"
-              className="flex items-center justify-center w-full h-12 bg-[#1a1a1a] text-white text-[14px] font-semibold rounded-full"
+              className="flex items-center justify-center w-full h-14 bg-[#1a1a1a] text-white text-[16px] font-bold rounded-2xl active:scale-[0.98] transition-all shadow-xl shadow-black/10 uppercase tracking-wide"
             >
               Criar conta grátis
-              <ArrowRight size={16} className="ml-2" />
+              <ArrowRight size={18} className="ml-2" />
             </Link>
             <Link 
               to="/auth/login"
-              className="flex items-center justify-center w-full h-12 bg-[#f5f5f5] text-[#1a1a1a] text-[14px] font-semibold rounded-full"
+              className="flex items-center justify-center w-full h-14 bg-[#f8f9fb] text-[#1a1a1a] text-[16px] font-bold rounded-2xl active:scale-[0.98] transition-all border border-gray-100 uppercase tracking-wide"
             >
               Já tenho conta
             </Link>
           </div>
         </div>
 
-        {/* Bottom Navigation */}
-        <div className="absolute bottom-0 left-0 right-0 bg-white px-6 pb-8 pt-3">
-          <div className="bg-[#1a1a1a] rounded-full px-3 py-1.5 flex items-center justify-around">
-            <button className="p-2.5">
-              <Home size={20} className="text-white" />
+        {/* Bottom Navigation (Safe Area Compatible) */}
+        <div className="absolute bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl px-6 pb-8 pt-4 border-t border-gray-50">
+          <div className="bg-[#1a1a1a] rounded-full px-4 py-2 flex items-center justify-around shadow-2xl">
+            <button className="p-3 active:scale-90 transition-all">
+              <Home size={22} className="text-white" />
             </button>
-            <button className="p-2.5">
-              <Bookmark size={20} className="text-white/50" />
+            <button className="p-3 active:scale-90 transition-all opacity-40">
+              <Bookmark size={22} className="text-white" />
             </button>
-            <button className="p-2.5">
-              <Heart size={20} className="text-white/50" />
+            <button className="p-3 active:scale-90 transition-all opacity-40">
+              <Heart size={22} className="text-white" />
             </button>
-            <button className="p-2.5">
-              <User size={20} className="text-white/50" />
+            <button className="p-3 active:scale-90 transition-all opacity-40">
+              <User size={22} className="text-white" />
             </button>
           </div>
         </div>

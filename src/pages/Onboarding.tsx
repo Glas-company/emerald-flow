@@ -90,7 +90,7 @@ export default function Onboarding() {
 
         {/* Texto descritivo */}
         <p 
-          className={`text-base text-[#6E6E73] text-center max-w-sm mb-16 leading-relaxed transition-all duration-600 ease-out ${
+          className={`text-base text-[#6E6E73] text-center w-full mb-16 leading-relaxed transition-all duration-600 ease-out ${
             mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
           style={{ 
@@ -105,7 +105,7 @@ export default function Onboarding() {
         {/* Botão Começar */}
         <button
           onClick={handleStart}
-          className={`w-full max-w-sm py-4 px-8 bg-[#22c55e] hover:bg-[#16a34a] text-white text-base font-semibold rounded-full transition-all duration-300 ease-out active:scale-[0.98] ${
+          className={`w-full py-4 px-8 bg-[#22c55e] hover:bg-[#16a34a] text-white text-base font-semibold rounded-full transition-all duration-300 ease-out active:scale-[0.98] ${
             mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
           style={{ 

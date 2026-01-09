@@ -93,7 +93,7 @@ export default function Login() {
           mounted ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
         }`}
       >
-        <div className="px-6 pt-8 pb-8 max-w-md mx-auto w-full">
+        <div className="px-6 pt-8 pb-8 w-full md:max-w-md md:mx-auto">
           {/* Título */}
           <h1 
             className={`text-2xl font-semibold text-[#1D1D1F] text-center mb-2 transition-all duration-500 ease-out ${

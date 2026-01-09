@@ -32,6 +32,7 @@ import CalculationDetails from "@/pages/app/CalculationDetails";
 import Perfil from "@/pages/app/Perfil";
 import OperacoesPage from "@/pages/app/OperacoesPage";
 import OperationDetails from "@/pages/app/OperationDetails";
+import "./App.css";
 
 // App version for logging
 const APP_VERSION = "2.0.0";
