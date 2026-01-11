@@ -14,7 +14,7 @@ export function BottomNavigation() {
   const location = useLocation();
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-4 pb-2 pt-2 safe-area-bottom z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
+    <div className="sticky bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-4 pb-2 pt-2 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]" style={{ paddingBottom: `calc(0.5rem + env(safe-area-inset-bottom, 0px))` }}>
       <nav className="flex items-center justify-around w-full relative h-14">
         {navItems.map((item) => {
           const Icon = item.icon;

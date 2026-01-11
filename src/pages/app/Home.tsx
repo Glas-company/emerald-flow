@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Search, Bell, Star, ArrowRight, Calculator, Droplets, Plane, Calendar, ChevronRight, BookOpen, FlaskConical, Package, History, MoreVertical, LayoutGrid } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { useI18n } from "@/contexts/I18nContext";
 import { getUserProfile, UserProfile } from "@/lib/userProfile";
 import { getSavedCalculations, formatCalculationDate as formatDate, type SavedCalculationData } from "@/lib/favoritesService";
 import { getRecipes, type Recipe } from "@/lib/recipesService";
@@ -10,6 +11,7 @@ import { getAllProducts, type CatalogProduct } from "@/lib/productCatalogService
 import { Operacoes } from "@/components/home/Operacoes";
 import { Relatorios } from "@/components/home/Relatorios";
 import { Avatar } from "@/components/profile/Avatar";
+import { LanguageSelector } from "@/components/ui/LanguageSelector";
 import { useNavigate } from "react-router-dom";
 import dronePainelImg from "@/assets/drone painel 1.webp";
 
@@ -17,6 +19,7 @@ const categories = ["Todos", "Cálculos", "Operações", "Relatórios"];
 
 export default function Home() {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const [category, setCategory] = useState("Todos");
   const [isFavorite, setIsFavorite] = useState(false);
   const { user } = useAuth();
@@ -104,6 +107,7 @@ export default function Home() {
           <Avatar linkTo="/app/perfil" size="md" />
         </div>
         <div className="flex items-center gap-2">
+          <LanguageSelector />
           <button className="w-10 h-10 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center relative">
             <Bell size={20} className="text-[#1a1a1a]" />
             <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-orange-500 rounded-full border-2 border-white" />
@@ -115,7 +119,7 @@ export default function Home() {
       </div>
 
       <div className="px-2">
-        <p className="text-[18px] text-[#8a8a8a] font-medium">Olá,</p>
+        <p className="text-[18px] text-[#8a8a8a] font-medium">{t("home.hello")}</p>
         <h1 className="text-[32px] font-bold text-[#1a1a1a] leading-tight">
           {userName}
         </h1>
@@ -127,7 +131,7 @@ export default function Home() {
           <Search size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-[#8a8a8a] group-focus-within:text-primary transition-colors" />
           <input
             type="text"
-            placeholder="Clique para pesquisar..."
+            placeholder={t("home.searchPlaceholder")}
             className="w-full h-[60px] pl-14 pr-6 bg-[#f2f4f7] rounded-[24px] text-[16px] text-[#1a1a1a] placeholder:text-[#8a8a8a] focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all border-none"
             value={search}
             onChange={e => setSearch(e.target.value)}
@@ -147,8 +151,8 @@ export default function Home() {
             </div>
             <div className="flex justify-between items-end">
               <div>
-                <h3 className="text-[17px] font-bold text-[#1a1a1a]">Calculadora</h3>
-                <p className="text-[13px] text-[#1a1a1a]/60">Nova mistura</p>
+                <h3 className="text-[17px] font-bold text-[#1a1a1a]">{t("home.calculator")}</h3>
+                <p className="text-[13px] text-[#1a1a1a]/60">{t("home.newMix")}</p>
               </div>
               <MoreVertical size={16} className="text-[#1a1a1a]/40 mb-1" />
             </div>
@@ -283,12 +287,9 @@ export default function Home() {
 
               <div className="absolute bottom-6 left-6 right-6">
                 <h3 className="text-[26px] font-bold text-white mb-2 leading-tight">Pulverização Agrícola de Precisão</h3>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-1.5">
-                    <Star size={14} className="text-yellow-400 fill-yellow-400" />
-                    <span className="text-[14px] font-bold text-white">5.0</span>
-                  </div>
-                  <span className="text-[14px] text-white/70">143 pilotos ativos</span>
+                <div className="flex items-center gap-1.5">
+                  <Star size={14} className="text-yellow-400 fill-yellow-400" />
+                  <span className="text-[14px] font-bold text-white">5.0</span>
                 </div>
               </div>
             </div>

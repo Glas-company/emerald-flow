@@ -84,7 +84,7 @@ export default function SplashPage() {
   }, [navigate, user, loading, progress]);
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center">
+    <div className="min-screen bg-white flex flex-col items-center justify-center">
       {/* Container central com logo e spinner */}
       <div className="relative w-28 h-28 flex items-center justify-center">
         {/* Spinner circular ao redor da logo */}

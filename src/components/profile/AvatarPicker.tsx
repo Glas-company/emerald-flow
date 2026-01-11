@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 interface AvatarPickerProps {
   avatarUrl: string | null;
   onAvatarChange: (url: string | null) => void;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   showControls?: boolean; // Se true, mostra botões "Trocar" e "Remover"
   className?: string;
 }
@@ -21,12 +21,14 @@ const sizeClasses = {
   sm: "w-16 h-16",
   md: "w-24 h-24",
   lg: "w-32 h-32",
+  xl: "w-40 h-40",
 };
 
 const iconSizes = {
   sm: 20,
   md: 40,
   lg: 56,
+  xl: 72,
 };
 
 export function AvatarPicker({
@@ -73,20 +75,30 @@ export function AvatarPicker({
     const { url, error } = await uploadAvatar(file);
 
     setIsUploading(false);
-    setPreviewUrl(null);
 
     if (error) {
+      setPreviewUrl(null);
       toast({
         title: "Erro",
         description: error.message || "Erro ao fazer upload da foto.",
         variant: "destructive",
       });
     } else if (url) {
+      // Manter preview temporariamente durante a transição
+      setPreviewUrl(null);
+      
+      // Aguardar um momento para garantir que o upload foi concluído
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      // Chamar callback com a URL atualizada (sem timestamp aqui, será adicionado no handleAvatarChange)
       onAvatarChange(url);
+      
       toast({
         title: "Sucesso",
         description: "Foto atualizada com sucesso!",
       });
+    } else {
+      setPreviewUrl(null);
     }
 
     // Limpar input
@@ -133,6 +145,12 @@ export function AvatarPicker({
               src={displayUrl}
               alt="Avatar"
               className="w-full h-full object-cover"
+              key={displayUrl} // Force re-render when URL changes
+              onError={(e) => {
+                console.error("Erro ao carregar imagem:", displayUrl);
+                // Fallback para ícone se a imagem falhar
+                e.currentTarget.style.display = 'none';
+              }}
             />
           ) : (
             <User size={iconSize} className="text-white/70" />

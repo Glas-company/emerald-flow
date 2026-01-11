@@ -34,17 +34,24 @@ export function ProtectedRoute() {
           const complete = metadata.profile_completed === true;
           
           console.log("🔍 [ProtectedRoute] Perfil completo?", complete, "Path:", location.pathname);
-          setProfileComplete(complete);
+          
+          // Se estiver acessando /app/perfil ou /app/configuracoes, permitir mesmo sem perfil completo
+          const isProfileRoute = location.pathname === "/app/perfil" || location.pathname === "/app/configuracoes";
+          
+          setProfileComplete(isProfileRoute ? true : complete);
+          setProfileChecked(true);
         } catch (err) {
           console.error("❌ [ProtectedRoute] Erro ao verificar perfil:", err);
-          setProfileComplete(true); // Assume completo para evitar loop
-        } finally {
+          // Em caso de erro, permite acesso para não travar a aplicação
+          setProfileComplete(true);
           setProfileChecked(true);
         }
       };
       checkProfile();
     } else if (!loading && !user) {
       setProfileChecked(true);
+    } else if (loading) {
+      // Durante o loading, não fazer nada (espera terminar)
     }
   }, [user, loading, location.pathname]);
 

@@ -1,0 +1,137 @@
+{
+  "common": {
+    "continue": "Continuar",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "search": "Buscar",
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso",
+    "confirm": "Confirmar",
+    "close": "Fechar",
+    "back": "Voltar",
+    "next": "Próximo",
+    "finish": "Finalizar"
+  },
+  "welcome": {
+    "title": "Realize seus\ncálculos de forma\nfácil",
+    "subtitle": "Simplifique seus cálculos agrícolas com tecnologia de ponta e precisão.",
+    "startQuiz": "Iniciar Quiz",
+    "alreadyHaveAccount": "Já tem uma conta? Entre aqui"
+  },
+  "home": {
+    "hello": "Olá,",
+    "searchPlaceholder": "Clique para pesquisar...",
+    "calculator": "Calculadora",
+    "newMix": "Nova mistura",
+    "products": "Produtos",
+    "catalog": "Catálogo",
+    "operations": "Operações",
+    "manage": "Gerenciar",
+    "reports": "Relatórios",
+    "viewAll": "Ver tudo",
+    "favorites": "Favoritos",
+    "saved": "Salvos",
+    "recent": "Recentes",
+    "all": "Todos",
+    "calculations": "Cálculos",
+    "operations": "Operações",
+    "reports": "Relatórios"
+  },
+  "profile": {
+    "title": "Perfil",
+    "editProfile": "Editar Perfil",
+    "completeProfile": "Complete seu perfil",
+    "completeProfileDesc": "Para ter mais visibilidade",
+    "calculations": "Cálculos",
+    "calculationsDesc": "Histórico total de trabalho",
+    "saved": "Salvos",
+    "savedDesc": "Misturas e receitas favoritas",
+    "help": "Ajuda & Suporte",
+    "helpDesc": "Tire suas dúvidas agora",
+    "logout": "Sair da conta",
+    "loggingOut": "Saindo...",
+    "settings": "Configurações",
+    "nameEmptyError": "O nome não pode estar vazio.",
+    "nameUpdateError": "Não foi possível atualizar o nome.",
+    "nameUpdateSuccess": "Nome atualizado com sucesso!"
+  },
+  "auth": {
+    "login": "Entrar",
+    "register": "Registrar",
+    "email": "E-mail",
+    "password": "Senha",
+    "forgotPassword": "Esqueceu a senha?",
+    "dontHaveAccount": "Não tem uma conta?",
+    "alreadyHaveAccount": "Já tem uma conta?",
+    "loginWithGoogle": "Entrar com Google",
+    "createAccount": "Criar conta",
+    "fullName": "Nome completo",
+    "companyName": "Nome da empresa"
+  },
+  "calc": {
+    "title": "Calculadora",
+    "newCalculation": "Novo cálculo",
+    "addProduct": "Adicionar produto",
+    "calculate": "Calcular",
+    "clear": "Limpar",
+    "save": "Salvar cálculo",
+    "hectares": "Hectares",
+    "water": "Água",
+    "product": "Produto",
+    "dose": "Dose",
+    "result": "Resultado"
+  },
+  "products": {
+    "title": "Produtos",
+    "catalog": "Catálogo",
+    "addProduct": "Adicionar produto",
+    "searchPlaceholder": "Buscar produtos...",
+    "noProducts": "Nenhum produto encontrado",
+    "category": "Categoria",
+    "indication": "Indicação"
+  },
+  "favorites": {
+    "title": "Favoritos",
+    "savedCalculations": "Cálculos salvos",
+    "noFavorites": "Nenhum favorito ainda",
+    "deleteConfirm": "Tem certeza que deseja excluir?"
+  },
+  "calculations": {
+    "title": "Cálculos",
+    "history": "Histórico",
+    "noCalculations": "Nenhum cálculo encontrado",
+    "searchPlaceholder": "Buscar cálculos...",
+    "deleteConfirm": "Tem certeza que deseja excluir este cálculo?"
+  },
+  "operations": {
+    "title": "Operações",
+    "newOperation": "Nova operação",
+    "noOperations": "Nenhuma operação encontrada",
+    "date": "Data",
+    "location": "Localização",
+    "crop": "Cultura",
+    "status": "Status"
+  },
+  "recipes": {
+    "title": "Receitas",
+    "newRecipe": "Nova receita",
+    "noRecipes": "Nenhuma receita encontrada",
+    "name": "Nome",
+    "description": "Descrição"
+  },
+  "help": {
+    "title": "Ajuda & Suporte",
+    "searchPlaceholder": "Buscar ajuda...",
+    "categories": "Categorias",
+    "contact": "Contatar suporte"
+  },
+  "language": {
+    "select": "Selecionar idioma",
+    "portuguese": "Português",
+    "english": "English",
+    "spanish": "Español"
+  }
+}

@@ -1,0 +1,137 @@
+{
+  "common": {
+    "continue": "Continue",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "confirm": "Confirm",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish"
+  },
+  "welcome": {
+    "title": "Make your\ncalculations\neasily",
+    "subtitle": "Simplify your agricultural calculations with cutting-edge technology and precision.",
+    "startQuiz": "Start Quiz",
+    "alreadyHaveAccount": "Already have an account? Log in here"
+  },
+  "home": {
+    "hello": "Hello,",
+    "searchPlaceholder": "Click to search...",
+    "calculator": "Calculator",
+    "newMix": "New mix",
+    "products": "Products",
+    "catalog": "Catalog",
+    "operations": "Operations",
+    "manage": "Manage",
+    "reports": "Reports",
+    "viewAll": "View all",
+    "favorites": "Favorites",
+    "saved": "Saved",
+    "recent": "Recent",
+    "all": "All",
+    "calculations": "Calculations",
+    "operations": "Operations",
+    "reports": "Reports"
+  },
+  "profile": {
+    "title": "Profile",
+    "editProfile": "Edit Profile",
+    "completeProfile": "Complete your profile",
+    "completeProfileDesc": "For more visibility",
+    "calculations": "Calculations",
+    "calculationsDesc": "Total work history",
+    "saved": "Saved",
+    "savedDesc": "Favorite mixtures and recipes",
+    "help": "Help & Support",
+    "helpDesc": "Get your questions answered now",
+    "logout": "Logout",
+    "loggingOut": "Logging out...",
+    "settings": "Settings",
+    "nameEmptyError": "Name cannot be empty.",
+    "nameUpdateError": "Unable to update name.",
+    "nameUpdateSuccess": "Name updated successfully!"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "dontHaveAccount": "Don't have an account?",
+    "alreadyHaveAccount": "Already have an account?",
+    "loginWithGoogle": "Login with Google",
+    "createAccount": "Create account",
+    "fullName": "Full name",
+    "companyName": "Company name"
+  },
+  "calc": {
+    "title": "Calculator",
+    "newCalculation": "New calculation",
+    "addProduct": "Add product",
+    "calculate": "Calculate",
+    "clear": "Clear",
+    "save": "Save calculation",
+    "hectares": "Hectares",
+    "water": "Water",
+    "product": "Product",
+    "dose": "Dose",
+    "result": "Result"
+  },
+  "products": {
+    "title": "Products",
+    "catalog": "Catalog",
+    "addProduct": "Add product",
+    "searchPlaceholder": "Search products...",
+    "noProducts": "No products found",
+    "category": "Category",
+    "indication": "Indication"
+  },
+  "favorites": {
+    "title": "Favorites",
+    "savedCalculations": "Saved calculations",
+    "noFavorites": "No favorites yet",
+    "deleteConfirm": "Are you sure you want to delete?"
+  },
+  "calculations": {
+    "title": "Calculations",
+    "history": "History",
+    "noCalculations": "No calculations found",
+    "searchPlaceholder": "Search calculations...",
+    "deleteConfirm": "Are you sure you want to delete this calculation?"
+  },
+  "operations": {
+    "title": "Operations",
+    "newOperation": "New operation",
+    "noOperations": "No operations found",
+    "date": "Date",
+    "location": "Location",
+    "crop": "Crop",
+    "status": "Status"
+  },
+  "recipes": {
+    "title": "Recipes",
+    "newRecipe": "New recipe",
+    "noRecipes": "No recipes found",
+    "name": "Name",
+    "description": "Description"
+  },
+  "help": {
+    "title": "Help & Support",
+    "searchPlaceholder": "Search help...",
+    "categories": "Categories",
+    "contact": "Contact support"
+  },
+  "language": {
+    "select": "Select language",
+    "portuguese": "Português",
+    "english": "English",
+    "spanish": "Español"
+  }
+}

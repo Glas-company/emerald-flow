@@ -1,0 +1,137 @@
+{
+  "common": {
+    "continue": "Continuar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "search": "Buscar",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "confirm": "Confirmar",
+    "close": "Cerrar",
+    "back": "Volver",
+    "next": "Siguiente",
+    "finish": "Finalizar"
+  },
+  "welcome": {
+    "title": "Realiza tus\ncálculos de forma\nfácil",
+    "subtitle": "Simplifica tus cálculos agrícolas con tecnología de vanguardia y precisión.",
+    "startQuiz": "Iniciar Quiz",
+    "alreadyHaveAccount": "¿Ya tienes una cuenta? Entra aquí"
+  },
+  "home": {
+    "hello": "Hola,",
+    "searchPlaceholder": "Haz clic para buscar...",
+    "calculator": "Calculadora",
+    "newMix": "Nueva mezcla",
+    "products": "Productos",
+    "catalog": "Catálogo",
+    "operations": "Operaciones",
+    "manage": "Gestionar",
+    "reports": "Informes",
+    "viewAll": "Ver todo",
+    "favorites": "Favoritos",
+    "saved": "Guardados",
+    "recent": "Recientes",
+    "all": "Todos",
+    "calculations": "Cálculos",
+    "operations": "Operaciones",
+    "reports": "Informes"
+  },
+  "profile": {
+    "title": "Perfil",
+    "editProfile": "Editar Perfil",
+    "completeProfile": "Completa tu perfil",
+    "completeProfileDesc": "Para mayor visibilidad",
+    "calculations": "Cálculos",
+    "calculationsDesc": "Historial total de trabajo",
+    "saved": "Guardados",
+    "savedDesc": "Mezclas y recetas favoritas",
+    "help": "Ayuda y Soporte",
+    "helpDesc": "Resuelve tus dudas ahora",
+    "logout": "Cerrar sesión",
+    "loggingOut": "Cerrando sesión...",
+    "settings": "Configuración",
+    "nameEmptyError": "El nombre no puede estar vacío.",
+    "nameUpdateError": "No se pudo actualizar el nombre.",
+    "nameUpdateSuccess": "¡Nombre actualizado con éxito!"
+  },
+  "auth": {
+    "login": "Iniciar sesión",
+    "register": "Registrarse",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "dontHaveAccount": "¿No tienes una cuenta?",
+    "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+    "loginWithGoogle": "Iniciar sesión con Google",
+    "createAccount": "Crear cuenta",
+    "fullName": "Nombre completo",
+    "companyName": "Nombre de la empresa"
+  },
+  "calc": {
+    "title": "Calculadora",
+    "newCalculation": "Nuevo cálculo",
+    "addProduct": "Agregar producto",
+    "calculate": "Calcular",
+    "clear": "Limpiar",
+    "save": "Guardar cálculo",
+    "hectares": "Hectáreas",
+    "water": "Agua",
+    "product": "Producto",
+    "dose": "Dosis",
+    "result": "Resultado"
+  },
+  "products": {
+    "title": "Productos",
+    "catalog": "Catálogo",
+    "addProduct": "Agregar producto",
+    "searchPlaceholder": "Buscar productos...",
+    "noProducts": "No se encontraron productos",
+    "category": "Categoría",
+    "indication": "Indicación"
+  },
+  "favorites": {
+    "title": "Favoritos",
+    "savedCalculations": "Cálculos guardados",
+    "noFavorites": "Aún no hay favoritos",
+    "deleteConfirm": "¿Estás seguro de que quieres eliminar?"
+  },
+  "calculations": {
+    "title": "Cálculos",
+    "history": "Historial",
+    "noCalculations": "No se encontraron cálculos",
+    "searchPlaceholder": "Buscar cálculos...",
+    "deleteConfirm": "¿Estás seguro de que quieres eliminar este cálculo?"
+  },
+  "operations": {
+    "title": "Operaciones",
+    "newOperation": "Nueva operación",
+    "noOperations": "No se encontraron operaciones",
+    "date": "Fecha",
+    "location": "Ubicación",
+    "crop": "Cultivo",
+    "status": "Estado"
+  },
+  "recipes": {
+    "title": "Recetas",
+    "newRecipe": "Nueva receta",
+    "noRecipes": "No se encontraron recetas",
+    "name": "Nombre",
+    "description": "Descripción"
+  },
+  "help": {
+    "title": "Ayuda y Soporte",
+    "searchPlaceholder": "Buscar ayuda...",
+    "categories": "Categorías",
+    "contact": "Contactar soporte"
+  },
+  "language": {
+    "select": "Seleccionar idioma",
+    "portuguese": "Português",
+    "english": "English",
+    "spanish": "Español"
+  }
+}

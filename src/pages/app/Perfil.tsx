@@ -1,19 +1,19 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { Settings, HelpCircle, ChevronRight, LogOut, Pencil, Check, X, ShieldCheck, Crown, Star, Calculator, History, Bell } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Settings, HelpCircle, ChevronRight, LogOut, Pencil, Check, X, ShieldCheck, Star, History } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/contexts/I18nContext";
 import { getUserProfile, saveUserProfile, UserProfile } from "@/lib/userProfile";
 import { getUserStats, UserStats } from "@/lib/userStats";
 import { getAvatarUrl } from "@/lib/avatarService";
 import { AvatarPicker } from "@/components/profile/AvatarPicker";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 export default function Perfil() {
   const { toast } = useToast();
   const { user, signOut } = useAuth();
+  const { t } = useI18n();
   const navigate = useNavigate();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -22,27 +22,69 @@ export default function Perfil() {
   const [isEditingName, setIsEditingName] = useState(false);
   const [editedName, setEditedName] = useState("");
   const [isSavingName, setIsSavingName] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+    
     const fetchData = async () => {
-      if (user) {
-        const { profile } = await getUserProfile();
-        if (profile) {
-          setUserProfile(profile);
-          setEditedName(profile.fullName);
+      try {
+        setIsLoading(true);
+        
+        if (!user) {
+          setIsLoading(false);
+          return;
         }
 
-        const { stats } = await getUserStats();
-        if (stats) {
-          setUserStats(stats);
+        // Carregar perfil
+        try {
+          const profileResult = await getUserProfile();
+          if (isMounted && profileResult?.profile) {
+            setUserProfile(profileResult.profile);
+            setEditedName(profileResult.profile.fullName || "");
+          }
+        } catch (profileError) {
+          console.error("Erro ao carregar perfil:", profileError);
         }
 
-        const avatar = await getAvatarUrl();
-        setAvatarUrl(avatar);
+        // Carregar estatísticas
+        try {
+          const statsResult = await getUserStats();
+          if (isMounted && statsResult?.stats) {
+            setUserStats(statsResult.stats);
+          }
+        } catch (statsError) {
+          console.error("Erro ao carregar estatísticas:", statsError);
+        }
+
+        // Carregar avatar
+        try {
+          const avatar = await getAvatarUrl();
+          if (isMounted) {
+            setAvatarUrl(avatar);
+          }
+        } catch (avatarError) {
+          console.error("Erro ao carregar avatar:", avatarError);
+        }
+      } catch (error) {
+        console.error("Erro geral ao carregar dados do perfil:", error);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
+
     fetchData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [user]);
+
+  const firstName = userProfile?.fullName 
+    ? (userProfile.fullName.trim().split(/\s+/)[0] || "Usuário")
+    : "Usuário";
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -53,8 +95,8 @@ export default function Perfil() {
   const handleSaveName = async () => {
     if (!editedName.trim()) {
       toast({
-        title: "Erro",
-        description: "O nome não pode estar vazio.",
+        title: t("common.error"),
+        description: t("profile.nameEmptyError"),
         variant: "destructive",
       });
       return;
@@ -66,16 +108,16 @@ export default function Perfil() {
 
     if (error) {
       toast({
-        title: "Erro",
-        description: "Não foi possível atualizar o nome.",
+        title: t("common.error"),
+        description: t("profile.nameUpdateError"),
         variant: "destructive",
       });
     } else {
       setUserProfile((prev) => prev ? { ...prev, fullName: editedName.trim() } : null);
       setIsEditingName(false);
       toast({
-        title: "Sucesso",
-        description: "Nome atualizado com sucesso!",
+        title: t("common.success"),
+        description: t("profile.nameUpdateSuccess"),
       });
     }
   };
@@ -86,14 +128,40 @@ export default function Perfil() {
   };
 
   const handleAvatarChange = (newUrl: string | null) => {
-    setAvatarUrl(newUrl);
+    try {
+      // Adicionar timestamp para evitar cache da imagem
+      if (newUrl) {
+        // Remover timestamp anterior se existir
+        const cleanUrl = newUrl.split('?')[0].split('&')[0];
+        const separator = cleanUrl.includes('?') ? '&' : '?';
+        const urlWithTimestamp = `${cleanUrl}${separator}t=${Date.now()}`;
+        setAvatarUrl(urlWithTimestamp);
+      } else {
+        setAvatarUrl(null);
+      }
+    } catch (error) {
+      console.error("Erro ao atualizar avatar:", error);
+    }
   };
 
+  const handleViewCalculations = () => {
+    navigate("/app/calculos");
+  };
+
+  const handleViewSaved = () => {
+    navigate("/app/favoritos");
+  };
+
+  const handleViewHelp = () => {
+    navigate("/app/ajuda");
+  };
+
+  // Sempre renderizar algo, mesmo durante loading (evita tela branca)
   return (
-    <div className="pt-4 pb-24 animate-fade-in space-y-8">
+    <div className="pt-4 pb-24 space-y-8 bg-white min-h-screen-safe">
       {/* Top Bar */}
       <div className="flex items-center justify-between px-2">
-        <h1 className="text-[24px] font-black tracking-tight text-[#1a1a1a]">emerald</h1>
+        <h1 className="text-[24px] font-black tracking-tight text-[#1a1a1a]">Calc</h1>
         <button 
           onClick={() => navigate("/app/configuracoes")}
           className="w-10 h-10 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center active:scale-90 transition-all"
@@ -106,19 +174,21 @@ export default function Perfil() {
       <div className="flex flex-col items-center">
         {/* Avatar with Circular Border */}
         <div className="relative mb-6">
-          <div className="absolute inset-0 -m-2 border-2 border-emerald-500 rounded-full" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 60%, 0 60%)' }} /> {/* Mock progress circle */}
-          <AvatarPicker
-            avatarUrl={avatarUrl}
-            onAvatarChange={handleAvatarChange}
-            size="xl"
-            showControls={false}
-          />
-          <button 
-            onClick={() => navigate("/app/perfil")} // Should ideally trigger photo change
-            className="absolute bottom-1 right-1 w-8 h-8 rounded-full bg-emerald-500 border-4 border-white flex items-center justify-center text-white"
-          >
-            <Pencil size={14} fill="currentColor" />
-          </button>
+          <div className="absolute inset-0 -m-2 border-2 border-emerald-500 rounded-full" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 60%, 0 60%)' }} />
+          {isLoading ? (
+            <div className="w-40 h-40 rounded-full bg-gray-200 animate-pulse flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emerald-500"></div>
+            </div>
+          ) : (
+            <div key={avatarUrl || 'no-avatar'}>
+              <AvatarPicker
+                avatarUrl={avatarUrl || null}
+                onAvatarChange={handleAvatarChange}
+                size="xl"
+                showControls={false}
+              />
+            </div>
+          )}
         </div>
 
         {/* Name and Info */}
@@ -137,10 +207,10 @@ export default function Perfil() {
               </div>
             ) : (
               <>
-                <h2 className="text-[28px] font-bold text-[#1a1a1a] tracking-tight" onClick={() => setIsEditingName(true)}>
-                  {userProfile?.fullName?.split(" ")[0] || "Usuário"}, 28
+                <h2 className="text-[28px] font-bold text-[#1a1a1a] tracking-tight cursor-pointer" onClick={() => setIsEditingName(true)}>
+                  {firstName}, 28
                 </h2>
-                <ShieldCheck size={22} className="text-blue-500 fill-blue-500 text-white" />
+                <ShieldCheck size={22} className="text-blue-500 fill-blue-500/20" />
               </>
             )}
           </div>
@@ -159,80 +229,71 @@ export default function Perfil() {
               </svg>
             </div>
             <div>
-              <p className="text-[15px] font-bold text-[#1a1a1a]">Complete seu perfil</p>
-              <p className="text-[13px] text-[#8a8a8a]">Para ter mais visibilidade</p>
+              <p className="text-[15px] font-bold text-[#1a1a1a]">{t("profile.completeProfile")}</p>
+              <p className="text-[13px] text-[#8a8a8a]">{t("profile.completeProfileDesc")}</p>
             </div>
           </div>
           <button 
             onClick={() => setIsEditingName(true)}
             className="px-5 py-2.5 rounded-full border border-[#1a1a1a] text-[14px] font-bold text-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-white transition-all"
           >
-            Editar Perfil
-          </button>
-        </div>
-      </div>
-
-      {/* Main Upgrade Card */}
-      <div className="px-2">
-        <div className="bg-[#f2f4f7] rounded-[32px] p-8 flex flex-col gap-6">
-          <div className="flex items-start gap-5">
-            <div className="w-16 h-16 rounded-[22px] bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200">
-              <Crown size={32} className="text-white fill-white/20" />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-[22px] font-bold text-[#1a1a1a]">Emerald Pro</h3>
-              <p className="text-[15px] text-[#1a1a1a]/60 font-medium leading-snug">Tenha acesso a relatórios avançados e IA exclusiva.</p>
-            </div>
-          </div>
-          <button className="bg-[#1a1a1a] text-white rounded-full py-4 text-[16px] font-bold flex items-center justify-center gap-2 active:scale-95 transition-all shadow-xl shadow-black/10">
-            <Plus size={20} /> Upgrade para Pro
+            {t("profile.editProfile")}
           </button>
         </div>
       </div>
 
       {/* Stats and Items List */}
       <div className="px-2 space-y-1">
-        <div className="p-4 flex items-center justify-between group active:bg-gray-50 rounded-2xl transition-all">
+        <div 
+          className="p-4 flex items-center justify-between group active:bg-gray-50 rounded-2xl transition-all cursor-pointer"
+          onClick={handleViewCalculations}
+        >
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center">
               <Star size={24} className="text-amber-500 fill-amber-500/20" />
             </div>
             <div>
-              <p className="text-[16px] font-bold text-[#1a1a1a]">{userStats?.totalCalculations || 0} Cálculos</p>
-              <p className="text-[13px] text-[#8a8a8a] font-medium">Histórico total de trabalho</p>
+              <p className="text-[16px] font-bold text-[#1a1a1a]">{userStats?.totalCalculations || 0} {t("profile.calculations")}</p>
+              <p className="text-[13px] text-[#8a8a8a] font-medium">{t("profile.calculationsDesc")}</p>
             </div>
           </div>
-          <ChevronRight size={20} className="text-gray-300" />
+          <ChevronRight size={20} className="text-gray-300 group-hover:text-gray-400 transition-colors" />
         </div>
 
         <div className="w-full h-px bg-gray-100 mx-4" />
 
-        <div className="p-4 flex items-center justify-between group active:bg-gray-50 rounded-2xl transition-all">
+        <div 
+          className="p-4 flex items-center justify-between group active:bg-gray-50 rounded-2xl transition-all cursor-pointer"
+          onClick={handleViewSaved}
+        >
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center">
               <History size={24} className="text-blue-500" />
             </div>
             <div>
-              <p className="text-[16px] font-bold text-[#1a1a1a]">{userStats?.savedCalculations || 0} Salvos</p>
-              <p className="text-[13px] text-[#8a8a8a] font-medium">Misturas e receitas favoritas</p>
+              <p className="text-[16px] font-bold text-[#1a1a1a]">{userStats?.savedCalculations || 0} {t("profile.saved")}</p>
+              <p className="text-[13px] text-[#8a8a8a] font-medium">{t("profile.savedDesc")}</p>
             </div>
           </div>
-          <ChevronRight size={20} className="text-gray-300" />
+          <ChevronRight size={20} className="text-gray-300 group-hover:text-gray-400 transition-colors" />
         </div>
 
         <div className="w-full h-px bg-gray-100 mx-4" />
 
-        <div className="p-4 flex items-center justify-between group active:bg-gray-50 rounded-2xl transition-all" onClick={() => navigate("/app/ajuda")}>
+        <div 
+          className="p-4 flex items-center justify-between group active:bg-gray-50 rounded-2xl transition-all cursor-pointer"
+          onClick={handleViewHelp}
+        >
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center">
               <HelpCircle size={24} className="text-emerald-500" />
             </div>
             <div>
-              <p className="text-[16px] font-bold text-[#1a1a1a]">Ajuda & Suporte</p>
-              <p className="text-[13px] text-[#8a8a8a] font-medium">Tire suas dúvidas agora</p>
+              <p className="text-[16px] font-bold text-[#1a1a1a]">{t("profile.help")}</p>
+              <p className="text-[13px] text-[#8a8a8a] font-medium">{t("profile.helpDesc")}</p>
             </div>
           </div>
-          <ChevronRight size={20} className="text-gray-300" />
+          <ChevronRight size={20} className="text-gray-300 group-hover:text-gray-400 transition-colors" />
         </div>
       </div>
 
@@ -244,7 +305,7 @@ export default function Perfil() {
           className="w-full flex items-center justify-center gap-2 text-[15px] font-bold text-red-500 bg-red-50 py-4 rounded-2xl active:scale-95 transition-all"
         >
           <LogOut size={18} />
-          {isLoggingOut ? "Saindo..." : "Sair da conta"}
+          {isLoggingOut ? t("profile.loggingOut") : t("profile.logout")}
         </button>
       </div>
     </div>

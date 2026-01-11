@@ -71,7 +71,7 @@ export default function Login() {
   };
 
   const handleBack = () => {
-    navigate("/onboarding", { replace: true });
+    navigate("/welcome", { replace: true });
   };
 
   return (

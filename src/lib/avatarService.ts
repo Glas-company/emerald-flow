@@ -331,21 +331,13 @@ export async function removeAvatar(): Promise<{ error: Error | null }> {
  * Obtém URL do avatar do usuário
  */
 export async function getAvatarUrl(): Promise<string | null> {
-  let userId: string | null = null;
-
-  if (supabase) {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      userId = user?.id || null;
-    } catch (err) {
-      console.warn("⚠️ [AvatarService] Erro ao obter user do Supabase:", err);
-    }
-  } else {
+  if (!supabase) {
     // Se não tiver Supabase, tentar pegar do localStorage
-    userId = localStorage.getItem("calc_user_id");
-  }
-
-  if (!userId) {
+    const userId = localStorage.getItem("calc_user_id");
+    if (userId) {
+      const storageKey = `calc_avatar_${userId}`;
+      return localStorage.getItem(storageKey);
+    }
     return null;
   }
 
@@ -353,18 +345,29 @@ export async function getAvatarUrl(): Promise<string | null> {
     const { data: { user }, error } = await supabase.auth.getUser();
 
     if (error || !user) {
+      // Fallback para localStorage se não conseguir obter usuário
+      const userId = localStorage.getItem("calc_user_id");
+      if (userId) {
+        const storageKey = `calc_avatar_${userId}`;
+        return localStorage.getItem(storageKey);
+      }
       return null;
     }
 
     // Tentar buscar da tabela profiles primeiro
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("avatar_url")
-      .eq("id", user.id)
-      .single();
+    try {
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("avatar_url")
+        .eq("id", user.id)
+        .single();
 
-    if (!profileError && profile?.avatar_url) {
-      return profile.avatar_url;
+      if (!profileError && profile?.avatar_url) {
+        return profile.avatar_url;
+      }
+    } catch (profileErr) {
+      // Se a tabela não existir, continuar para outros métodos
+      console.warn("⚠️ [AvatarService] Tabela profiles não disponível, usando fallback");
     }
 
     // Fallback para user_metadata
@@ -379,11 +382,15 @@ export async function getAvatarUrl(): Promise<string | null> {
     return base64;
   } catch (err) {
     console.error("❌ [AvatarService] Erro ao obter avatar:", err);
-    // Fallback para localStorage
-    if (userId) {
-      const storageKey = `calc_avatar_${userId}`;
-      const base64 = localStorage.getItem(storageKey);
-      return base64;
+    // Fallback final para localStorage
+    try {
+      const userId = localStorage.getItem("calc_user_id");
+      if (userId) {
+        const storageKey = `calc_avatar_${userId}`;
+        return localStorage.getItem(storageKey);
+      }
+    } catch (localErr) {
+      console.error("❌ [AvatarService] Erro ao acessar localStorage:", localErr);
     }
     return null;
   }
