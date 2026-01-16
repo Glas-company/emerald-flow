@@ -117,14 +117,15 @@ export default function Welcome() {
           {/* Botão Quiz */}
           <button
             onClick={handleStartQuiz}
-            className={`w-full max-w-sm py-4 px-8 bg-[#1a1a1a] hover:bg-[#2a2a2a] text-white text-[16px] font-semibold rounded-xl transition-all duration-300 ease-out active:scale-[0.98] mb-3 ${
+            className={`w-full max-w-sm py-4 px-8 text-black text-[16px] font-semibold rounded-xl transition-all duration-300 ease-out active:scale-[0.98] mb-3 shadow-md shadow-[#A3FF3F]/40 ${
               mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}
             style={{ 
               transitionDelay: '500ms',
               fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif',
               letterSpacing: '0em',
-              fontWeight: 600
+              fontWeight: 600,
+              backgroundColor: '#A3FF3F'
             }}
           >
             {t("welcome.startQuiz")}

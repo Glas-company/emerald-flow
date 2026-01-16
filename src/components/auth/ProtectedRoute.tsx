@@ -65,6 +65,31 @@ export function ProtectedRoute() {
     return <Navigate to="/auth/login" replace />;
   }
 
+  const metadata = user.user_metadata || {};
+  const subscriptionStatus = metadata.subscription_status as string | undefined;
+  const trialEndsAtStr = metadata.subscription_trial_ends_at as string | undefined;
+  const cancelledAtStr = metadata.subscription_cancelled_at as string | undefined;
+
+  let effectiveStatus = subscriptionStatus;
+
+  if (trialEndsAtStr) {
+    const now = new Date();
+    const trialEnd = new Date(trialEndsAtStr);
+    const trialEnded = trialEnd.getTime() <= now.getTime();
+    if (trialEnded && (!subscriptionStatus || subscriptionStatus === "trial_active")) {
+      effectiveStatus = cancelledAtStr ? "trial_expired" : "payment_failed";
+    }
+  }
+
+  const isSubscriptionBlocked =
+    effectiveStatus === "payment_failed" ||
+    effectiveStatus === "trial_expired" ||
+    effectiveStatus === "blocked";
+
+  if (isSubscriptionBlocked && location.pathname.startsWith("/app/")) {
+    return <Navigate to="/onboarding/start-experience" replace />;
+  }
+
   // Se perfil incompleto e tentando acessar /app/*, redirecionar
   if (profileChecked && !profileComplete && location.pathname.startsWith("/app/")) {
     console.log("⚠️ [ProtectedRoute] Perfil incompleto, redirecionando para profile-setup");

@@ -38,7 +38,7 @@ export default function StartExperience() {
         
         <span className="text-[18px] font-bold text-gray-300 italic">Calc</span>
         
-        <button onClick={handleStart} className="p-2 -mr-2 text-gray-300">
+        <button onClick={() => navigate('/auth/login')} className="p-2 -mr-2 text-gray-300">
           <X size={24} />
         </button>
       </div>
@@ -112,7 +112,7 @@ export default function StartExperience() {
 
         <button
           onClick={handleStart}
-          className="w-full py-4 px-8 bg-[#1a1a1a] hover:bg-[#2a2a2a] text-white text-[18px] font-[900] rounded-[20px] shadow-xl transition-all duration-300 active:scale-[0.98] mb-6 uppercase tracking-wider"
+          className="w-full py-4 px-8 text-[18px] font-[900] rounded-[20px] transition-all duration-300 active:scale-[0.98] mb-6 uppercase tracking-wider shadow-md shadow-[#A3FF3F]/40 bg-[#A3FF3F] hover:bg-[#93F039] text-black"
         >
           Começar agora
         </button>

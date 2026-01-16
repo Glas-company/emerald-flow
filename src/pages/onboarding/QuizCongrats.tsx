@@ -116,7 +116,7 @@ export default function QuizCongrats() {
       <div className="px-6 pb-6 pt-4 shrink-0">
         <button
           onClick={handleContinue}
-          className="w-full py-5 px-8 bg-[#1a1a1a] hover:bg-[#2a2a2a] text-white text-[18px] font-bold rounded-[22px] transition-all duration-300 active:scale-[0.98] shadow-xl"
+          className="w-full py-5 px-8 text-[18px] font-bold rounded-[22px] transition-all duration-300 active:scale-[0.98] shadow-md shadow-[#A3FF3F]/40 bg-[#A3FF3F] hover:bg-[#93F039] text-black"
         >
           Continuar
         </button>

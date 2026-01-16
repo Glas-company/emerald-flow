@@ -174,7 +174,7 @@ export default function PlanReady() {
       <div className="pb-6 pt-4 bg-white shrink-0">
         <button
           onClick={() => navigate('/onboarding/start-experience')}
-          className="w-full py-5 px-8 bg-[#1a1a1a] hover:bg-[#2a2a2a] text-white text-[18px] font-bold rounded-[20px] shadow-xl transition-all duration-300 active:scale-[0.98]"
+          className="w-full py-5 px-8 text-[18px] font-bold rounded-[20px] transition-all duration-300 active:scale-[0.98] shadow-md shadow-[#A3FF3F]/40 bg-[#A3FF3F] hover:bg-[#93F039] text-black"
         >
           Pegue os seus 7 dias grátis
         </button>

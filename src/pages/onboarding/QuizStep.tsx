@@ -163,9 +163,9 @@ export default function QuizStep() {
         <button
           onClick={handleNext}
           disabled={!selectedOption}
-          className={`w-full py-4 sm:py-5 px-8 text-white text-base sm:text-lg font-bold rounded-[22px] transition-all duration-300 ${
+          className={`w-full py-4 sm:py-5 px-8 text-base sm:text-lg font-bold rounded-[22px] transition-all duration-300 ${
             selectedOption 
-              ? "bg-[#1a1a1a] hover:bg-[#2a2a2a] active:scale-[0.98] shadow-xl" 
+              ? "bg-[#A3FF3F] hover:bg-[#93F039] text-black active:scale-[0.98] shadow-md shadow-[#A3FF3F]/40" 
               : "bg-gray-200 cursor-not-allowed text-gray-400 shadow-none"
           }`}
         >

@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff, ChevronLeft, AlertCircle, CheckCircle, Building2, Plane, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function Register() {
@@ -79,183 +81,159 @@ export default function Register() {
   };
 
   const handleBack = () => {
-    navigate("/auth/login", { replace: true });
+    navigate("/welcome", { replace: true });
   };
 
   return (
-    <div className="min-h-screen min-h-[100dvh] flex flex-col bg-[#22c55e] relative overflow-hidden">
-      {/* Área superior verde */}
-      <div className="h-[15vh] min-h-[100px] relative">
-        {/* Botão voltar */}
-        <button 
-          onClick={handleBack}
-          className="absolute left-4 p-2 text-white/90 hover:text-white transition-colors z-10"
-          style={{ top: "calc(1rem + env(safe-area-inset-top))" }}
-        >
-          <ChevronLeft size={28} strokeWidth={2} />
-        </button>
-      </div>
-
-      {/* Área inferior branca com formulário */}
-      <div 
-        className={`flex-1 bg-white rounded-t-[32px] -mt-4 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] overflow-y-auto transition-all duration-500 ease-out ${
-          mounted ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
-        }`}
-      >
-        <div className="px-6 pt-6 pb-8 w-full md:max-w-md md:mx-auto">
-          {/* Título */}
-          <h1 
-            className={`text-2xl font-semibold text-[#1D1D1F] text-center mb-2 transition-all duration-500 ease-out ${
-              mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`}
-            style={{ 
-              transitionDelay: '200ms',
-              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif'
-            }}
+    <div
+      className="min-h-screen min-h-[100dvh] flex flex-col bg-black text-white"
+      style={{
+        paddingTop: "env(safe-area-inset-top)",
+        paddingBottom: "env(safe-area-inset-bottom)",
+      }}
+    >
+      <div className="flex-1 w-full overflow-y-auto">
+        <div className="min-h-full flex flex-col items-center justify-center py-10 px-6">
+          <div className="w-full max-w-sm relative">
+          <button
+            type="button"
+            onClick={handleBack}
+            className="absolute -top-12 left-0 p-2 text-gray-400 hover:text-white transition-colors"
           >
-            Criar conta
-          </h1>
-          
-          {/* Subtítulo */}
-          <p 
-            className={`text-sm text-[#86868B] text-center mb-6 transition-all duration-500 ease-out ${
-              mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`}
-            style={{ transitionDelay: '300ms' }}
-          >
-            Preencha os campos para começar
-          </p>
+            <ChevronLeft size={24} />
+          </button>
 
-          {/* Mensagem de sucesso */}
+          <div
+            className={`space-y-1 mb-6 text-center transition-all duration-500 ${
+              mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+            }`}
+          >
+            <h1 className="text-2xl font-semibold tracking-tight">Criar conta</h1>
+            <p className="text-sm text-gray-400">Preencha os campos para começar</p>
+          </div>
+
           {success && (
-            <div className="flex items-center gap-2 bg-green-50 border border-green-100 text-green-600 rounded-2xl px-4 py-3 mb-4">
+            <div className="mb-4 flex items-center gap-2 rounded-2xl border border-green-500/40 bg-green-500/10 px-4 py-3 text-sm text-green-100">
               <CheckCircle size={18} />
-              <span className="text-sm">Conta criada! Faça login para continuar...</span>
+              <span>Conta criada! Faça login para continuar...</span>
             </div>
           )}
 
-          {/* Erro */}
           {error && (
-            <div className="flex items-center gap-2 bg-red-50 border border-red-100 text-red-600 rounded-2xl px-4 py-3 mb-4">
+            <div className="mb-4 flex items-center gap-2 rounded-2xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-100">
               <AlertCircle size={18} />
-              <span className="text-sm">{error}</span>
+              <span>{error}</span>
             </div>
           )}
 
-          {/* Formulário */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Nome Completo */}
-            <div 
-              className={`transition-all duration-500 ease-out ${
-                mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <div
+              className={`space-y-1.5 transition-all duration-500 ${
+                mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
               }`}
-              style={{ transitionDelay: '350ms' }}
+              style={{ transitionDelay: "200ms" }}
             >
-              <label className="block text-[#1D1D1F] text-sm font-medium mb-2 flex items-center gap-1.5">
-                <User size={16} className="text-[#86868B]" />
+              <label className="flex items-center gap-1.5 text-sm font-medium text-gray-200">
+                <User size={16} className="text-gray-500" />
                 Seu Nome *
               </label>
-              <input
+              <Input
                 type="text"
                 value={fullName}
                 onChange={e => setFullName(e.target.value)}
-                className="w-full h-14 px-4 rounded-2xl border border-gray-200 bg-[#F5F5F7] text-[#1D1D1F] placeholder-[#86868B] focus:border-[#22c55e] focus:bg-white focus:outline-none transition-all"
-                placeholder="Ex: João Silva"
                 disabled={isSubmitting || success}
                 autoComplete="name"
+                placeholder="Ex: João Silva"
+                className="h-11 w-full rounded-full border-0 bg-[#111111] px-4 text-sm text-white placeholder:text-gray-500 focus-visible:ring-2 focus-visible:ring-[#A3FF3F]"
               />
             </div>
 
-            {/* Nome Empresa */}
-            <div 
-              className={`transition-all duration-500 ease-out ${
-                mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            <div
+              className={`space-y-1.5 transition-all duration-500 ${
+                mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
               }`}
-              style={{ transitionDelay: '400ms' }}
+              style={{ transitionDelay: "260ms" }}
             >
-              <label className="block text-[#1D1D1F] text-sm font-medium mb-2 flex items-center gap-1.5">
-                <Building2 size={16} className="text-[#86868B]" />
+              <label className="flex items-center gap-1.5 text-sm font-medium text-gray-200">
+                <Building2 size={16} className="text-gray-500" />
                 Nome da Empresa *
               </label>
-              <input
+              <Input
                 type="text"
                 value={company}
                 onChange={e => setCompany(e.target.value)}
-                className="w-full h-14 px-4 rounded-2xl border border-gray-200 bg-[#F5F5F7] text-[#1D1D1F] placeholder-[#86868B] focus:border-[#22c55e] focus:bg-white focus:outline-none transition-all"
-                placeholder="Ex: Fazenda Boa Colheita"
                 disabled={isSubmitting || success}
                 autoComplete="organization"
+                placeholder="Ex: Fazenda Boa Colheita"
+                className="h-11 w-full rounded-full border-0 bg-[#111111] px-4 text-sm text-white placeholder:text-gray-500 focus-visible:ring-2 focus-visible:ring-[#A3FF3F]"
               />
             </div>
 
-            {/* Drone(s) (opcional) */}
-            <div 
-              className={`transition-all duration-500 ease-out ${
-                mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            <div
+              className={`space-y-1.5 transition-all duration-500 ${
+                mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
               }`}
-              style={{ transitionDelay: '450ms' }}
+              style={{ transitionDelay: "320ms" }}
             >
-              <label className="block text-[#1D1D1F] text-sm font-medium mb-2 flex items-center gap-1.5">
-                <Plane size={16} className="text-[#86868B]" />
+              <label className="flex items-center gap-1.5 text-sm font-medium text-gray-200">
+                <Plane size={16} className="text-gray-500" />
                 Drone(s) utilizado(s)
-                <span className="text-xs text-[#86868B] font-normal">(Opcional)</span>
+                <span className="text-xs font-normal text-gray-500">(Opcional)</span>
               </label>
-              <input
+              <Input
                 type="text"
                 value={drone}
                 onChange={e => setDrone(e.target.value)}
-                className="w-full h-14 px-4 rounded-2xl border border-gray-200 bg-[#F5F5F7] text-[#1D1D1F] placeholder-[#86868B] focus:border-[#22c55e] focus:bg-white focus:outline-none transition-all"
-                placeholder="Ex: DJI AGRAS, XAG, etc."
                 disabled={isSubmitting || success}
                 autoComplete="off"
+                placeholder="Ex: DJI AGRAS, XAG, etc."
+                className="h-11 w-full rounded-full border-0 bg-[#111111] px-4 text-sm text-white placeholder:text-gray-500 focus-visible:ring-2 focus-visible:ring-[#A3FF3F]"
               />
             </div>
 
-            {/* Email */}
-            <div 
-              className={`transition-all duration-500 ease-out ${
-                mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            <div
+              className={`space-y-1.5 transition-all duration-500 ${
+                mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
               }`}
-              style={{ transitionDelay: '500ms' }}
+              style={{ transitionDelay: "380ms" }}
             >
-              <label className="block text-[#1D1D1F] text-sm font-medium mb-2">Email</label>
+              <label className="block text-sm font-medium text-gray-200">Email</label>
               <div className="relative">
-                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#86868B]" />
-                <input
+                <Mail size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+                <Input
                   type="email"
                   value={email}
                   disabled={isSubmitting || success}
                   onChange={(e) => setEmail(e.target.value)}
                   autoComplete="email"
-                  className="w-full h-14 pl-12 pr-4 rounded-2xl border border-gray-200 bg-[#F5F5F7] text-[#1D1D1F] placeholder-[#86868B] focus:border-[#22c55e] focus:bg-white focus:outline-none transition-all"
                   placeholder="seu@email.com"
+                  className="h-11 w-full rounded-full border-0 bg-[#111111] pl-11 pr-4 text-sm text-white placeholder:text-gray-500 focus-visible:ring-2 focus-visible:ring-[#A3FF3F]"
                 />
               </div>
             </div>
 
-            {/* Senha */}
-            <div 
-              className={`transition-all duration-500 ease-out ${
-                mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            <div
+              className={`space-y-1.5 transition-all duration-500 ${
+                mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
               }`}
-              style={{ transitionDelay: '550ms' }}
+              style={{ transitionDelay: "440ms" }}
             >
-              <label className="block text-[#1D1D1F] text-sm font-medium mb-2">Senha</label>
+              <label className="block text-sm font-medium text-gray-200">Senha</label>
               <div className="relative">
-                <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#86868B]" />
-                <input
+                <Lock size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+                <Input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   disabled={isSubmitting || success}
                   onChange={e => setPassword(e.target.value)}
                   autoComplete="new-password"
-                  className="w-full h-14 pl-12 pr-12 rounded-2xl border border-gray-200 bg-[#F5F5F7] text-[#1D1D1F] placeholder-[#86868B] focus:border-[#22c55e] focus:bg-white focus:outline-none transition-all"
                   placeholder="min. 6 caracteres"
+                  className="h-11 w-full rounded-full border-0 bg-[#111111] pl-11 pr-11 text-sm text-white placeholder:text-gray-500 focus-visible:ring-2 focus-visible:ring-[#A3FF3F]"
                 />
                 <button
                   tabIndex={-1}
                   type="button"
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#86868B] hover:text-[#1D1D1F] transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-200 transition-colors"
                   onClick={() => setShowPassword((v) => !v)}
                   aria-label="Mostrar senha"
                 >
@@ -264,62 +242,56 @@ export default function Register() {
               </div>
             </div>
 
-            {/* Confirmar senha */}
-            <div 
-              className={`transition-all duration-500 ease-out ${
-                mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            <div
+              className={`space-y-1.5 transition-all duration-500 ${
+                mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
               }`}
-              style={{ transitionDelay: '600ms' }}
+              style={{ transitionDelay: "500ms" }}
             >
-              <label className="block text-[#1D1D1F] text-sm font-medium mb-2">Confirmar senha</label>
+              <label className="block text-sm font-medium text-gray-200">Confirmar senha</label>
               <div className="relative">
-                <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#86868B]" />
-                <input
+                <Lock size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+                <Input
                   type={showPassword ? "text" : "password"}
                   value={confirmPassword}
                   disabled={isSubmitting || success}
                   onChange={e => setConfirmPassword(e.target.value)}
                   autoComplete="new-password"
-                  className="w-full h-14 pl-12 pr-4 rounded-2xl border border-gray-200 bg-[#F5F5F7] text-[#1D1D1F] placeholder-[#86868B] focus:border-[#22c55e] focus:bg-white focus:outline-none transition-all"
                   placeholder="Repita a senha"
+                  className="h-11 w-full rounded-full border-0 bg-[#111111] pl-11 pr-4 text-sm text-white placeholder:text-gray-500 focus-visible:ring-2 focus-visible:ring-[#A3FF3F]"
                 />
               </div>
             </div>
 
-            {/* Botão Criar conta */}
-            <button
+            <Button
               type="submit"
               disabled={isSubmitting || success}
-              className={`w-full h-14 rounded-full font-semibold text-white transition-all duration-300 active:scale-[0.98] mt-2 ${
-                mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-              }`}
-              style={{ 
-                transitionDelay: '650ms',
-                background: isSubmitting ? "#86efac" : "#22c55e",
-                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif'
-              }}
+              size="lg"
+              className={`mt-2 w-full rounded-full text-base font-semibold text-black shadow-md shadow-[#A3FF3F]/40 transition-all active:scale-[0.98] ${
+                mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+              } ${isSubmitting ? "bg-[#86D935] hover:bg-[#86D935]" : "bg-[#A3FF3F] hover:bg-[#93F039]"}`}
             >
               {isSubmitting ? "Criando..." : "Criar conta"}
-            </button>
+            </Button>
           </form>
 
-          {/* Link para login */}
-          <div 
-            className={`text-center mt-6 transition-all duration-500 ease-out ${
-              mounted ? 'opacity-100' : 'opacity-0'
+          <div
+            className={`mt-6 text-center text-sm transition-all duration-500 ${
+              mounted ? "opacity-100" : "opacity-0"
             }`}
-            style={{ transitionDelay: '700ms' }}
+            style={{ transitionDelay: "600ms" }}
           >
-            <span className="text-sm text-[#86868B]">Já tem conta? </span>
+            <span className="text-gray-500">Já tem conta? </span>
             <Link 
               to="/auth/login" 
-              className="text-[#22c55e] font-semibold text-sm hover:underline"
+              className="font-semibold text-[#8DFD44] hover:underline"
             >
               Entrar
             </Link>
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 }
